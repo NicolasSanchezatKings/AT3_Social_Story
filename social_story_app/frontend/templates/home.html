@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="text-center py-8">
+    {% if current_user.is_authenticated %}
+        <h1 class="text-3xl font-bold">Welcome, {{ current_user.username }}!</h1>
+        <p class="mt-4 text-lg">Start creating your custom social stories below.</p>
+        <a href="{{ url_for('stories.create_story') }}" class="mt-6 inline-block bg-blue-600 text-white px-6 py-2 rounded">
+            + Create New Story
+        </a>
+    {% else %}
+        <h1 class="text-3xl font-bold">Welcome to Social Story Maker</h1>
+        <p class="mt-4 text-lg">Please <a href="{{ url_for('auth.login') }}" class="text-blue-600 underline">log in</a> or
+        <a href="{{ url_for('auth.register') }}" class="text-blue-600 underline">register</a> to get started.</p>
+    {% endif %}
+</div>
+{% endblock %}

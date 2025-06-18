@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Social Story App{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white shadow p-4">
+        <div class="container mx-auto flex justify-between">
+            <a href="/" class="text-xl font-bold">SocialStory</a>
+            <div>
+                <a href="/auth/login" class="mr-4">Login</a>
+                <a href="/auth/register">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
