@@ -1,0 +1,349 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Story
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="story-form" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="Enter a descriptive title for your story") }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>Choose a title that clearly describes the social situation
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.content.label(class="form-label") }}
+                        {{ form.content(class="form-control" + (" is-invalid" if form.content.errors else ""), 
+                                       rows="12", 
+                                       placeholder="Write your social story here...\n\nExample:\nWhen I go to the grocery store, I will:\n1. Get a shopping cart or basket\n2. Walk slowly and carefully through the aisles\n3. Say 'excuse me' if I need to pass someone\n4. Wait patiently in line at the checkout\n5. Say 'thank you' to the cashier\n\nThis helps me have a successful shopping trip.") }}
+                        {% if form.content.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.content.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>Write in first person ("I will...") and use simple, clear language
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_published(class="form-check-input") }}
+                            {{ form.is_published.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>Published stories are marked as complete and ready to use
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('stories.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Back to Stories
+                        </a>
+                        <button type="button" class="btn btn-outline-info" onclick="previewStory()">
+                            <i class="bi bi-eye me-1"></i>Preview
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Writing Tips -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Writing Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small">
+                    <li class="mb-2">
+                        <strong>Use "I" statements:</strong><br>
+                        "I will raise my hand to ask a question"
+                    </li>
+                    <li class="mb-2">
+                        <strong>Be specific:</strong><br>
+                        "I will wait for my turn to speak" instead of "I will be good"
+                    </li>
+                    <li class="mb-2">
+                        <strong>Stay positive:</strong><br>
+                        Focus on what to do, not what to avoid
+                    </li>
+                    <li class="mb-2">
+                        <strong>Include context:</strong><br>
+                        Describe when and where the situation happens
+                    </li>
+                    <li class="mb-2">
+                        <strong>Add feelings:</strong><br>
+                        "This helps me feel confident and prepared"
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Story Examples -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-journal-bookmark me-2"></i>Example Topics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertExample('classroom')">
+                        Classroom behavior
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertExample('friendship')">
+                        Making friends
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertExample('restaurant')">
+                        Eating out
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertExample('doctor')">
+                        Doctor visit
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertExample('playground')">
+                        Playground rules
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertExample('shopping')">
+                        Shopping trip
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-eye me-2"></i>Story Preview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="preview-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function previewStory() {
+    const title = document.getElementById('title').value;
+    const content = document.getElementById('content').value;
+    
+    if (!title || !content) {
+        alert('Please enter both a title and content to preview the story.');
+        return;
+    }
+    
+    const previewHtml = `
+        <div class="card">
+            <div class="card-header">
+                <h4>${title}</h4>
+            </div>
+            <div class="card-body">
+                <div class="story-content">${content.replace(/\n/g, '<br>')}</div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('preview-content').innerHTML = previewHtml;
+    
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    modal.show();
+}
+
+function insertExample(type) {
+    const examples = {
+        'classroom': {
+            title: 'Participating in Class Discussions',
+            content: `When my teacher asks a question in class, I will:
+
+1. Listen carefully to the question
+2. Think about my answer quietly
+3. Raise my hand if I want to share
+4. Wait for the teacher to call on me
+5. Speak clearly when it's my turn
+6. Listen respectfully when others are talking
+
+This helps me participate appropriately and learn from my classmates.`
+        },
+        'friendship': {
+            title: 'Making New Friends',
+            content: `When I want to make a new friend, I will:
+
+1. Look for someone who seems friendly
+2. Smile and say "Hello, my name is..."
+3. Ask if they would like to play or talk
+4. Listen to what they say
+5. Share something about myself
+6. Be kind and respectful
+
+Making friends takes time and practice, and that's okay.`
+        },
+        'restaurant': {
+            title: 'Eating at a Restaurant',
+            content: `When I go to a restaurant, I will:
+
+1. Wait to be seated by the host
+2. Sit quietly in my chair
+3. Use my inside voice when talking
+4. Say "please" and "thank you" to the server
+5. Eat my food politely
+6. Wait for everyone to finish before leaving
+
+This helps me have an enjoyable meal with others.`
+        },
+        'doctor': {
+            title: 'Visiting the Doctor',
+            content: `When I go to the doctor, I will:
+
+1. Check in at the front desk
+2. Sit quietly in the waiting room
+3. Go with the nurse when they call my name
+4. Listen to the doctor's instructions
+5. Ask questions if I don't understand
+6. Tell the doctor how I'm feeling
+
+The doctor is there to help me stay healthy.`
+        },
+        'playground': {
+            title: 'Playing on the Playground',
+            content: `When I play on the playground, I will:
+
+1. Take turns on the equipment
+2. Ask before joining others' games
+3. Include others who want to play
+4. Use kind words when talking
+5. Tell a teacher if someone gets hurt
+6. Clean up when it's time to go inside
+
+Following these rules helps everyone have fun safely.`
+        },
+        'shopping': {
+            title: 'Going Shopping',
+            content: `When I go shopping, I will:
+
+1. Stay close to my family
+2. Use walking feet in the store
+3. Keep my hands to myself
+4. Ask before touching items
+5. Wait patiently in line
+6. Say "thank you" to the cashier
+
+This helps me have a successful shopping trip.`
+        }
+    };
+    
+    if (examples[type]) {
+        if (confirm('This will replace your current content. Continue?')) {
+            document.getElementById('title').value = examples[type].title;
+            document.getElementById('content').value = examples[type].content;
+        }
+    }
+}
+
+// Auto-save functionality
+let autoSaveTimer;
+const autoSaveDelay = 3000; // 3 seconds
+
+function autoSave() {
+    const title = document.getElementById('title').value;
+    const content = document.getElementById('content').value;
+    
+    if (title || content) {
+        const data = {
+            title: title,
+            content: content,
+            timestamp: new Date().toISOString()
+        };
+        
+        localStorage.setItem('story-draft', JSON.stringify(data));
+        
+        // Show brief feedback
+        const saveIndicator = document.getElementById('save-indicator');
+        if (saveIndicator) {
+            saveIndicator.textContent = 'Draft saved';
+            saveIndicator.className = 'text-success small';
+            setTimeout(() => {
+                saveIndicator.textContent = '';
+            }, 2000);
+        }
+    }
+}
+
+function handleInput() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(autoSave, autoSaveDelay);
+}
+
+// Add auto-save to form inputs
+document.getElementById('title').addEventListener('input', handleInput);
+document.getElementById('content').addEventListener('input', handleInput);
+
+// Add save indicator
+const form = document.getElementById('story-form');
+const saveIndicator = document.createElement('small');
+saveIndicator.id = 'save-indicator';
+saveIndicator.className = 'text-muted';
+form.appendChild(saveIndicator);
+
+// Load draft on page load
+window.addEventListener('load', function() {
+    const saved = localStorage.getItem('story-draft');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            const title = document.getElementById('title');
+            const content = document.getElementById('content');
+            
+            if (!title.value && !content.value) {
+                if (confirm('A draft was found. Would you like to restore it?')) {
+                    title.value = data.title || '';
+                    content.value = data.content || '';
+                }
+            }
+        } catch (err) {
+            console.error('Failed to load draft:', err);
+        }
+    }
+});
+
+// Clear draft on successful submission
+document.getElementById('story-form').addEventListener('submit', function() {
+    localStorage.removeItem('story-draft');
+});
+</script>
+{% endblock %}
