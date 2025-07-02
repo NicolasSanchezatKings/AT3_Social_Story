@@ -1,0 +1,11 @@
+// Skip to main content link
+        const skipLink = document.createElement('a');
+        skipLink.href = '#main-content';
+        skipLink.className = 'sr-only sr-only-focusable btn btn-primary';
+        skipLink.textContent = 'Skip to main content';
+        skipLink.style.position = 'absolute';
+        skipLink.style.top = '10px';
+        skipLink.style.left = '10px';
+        skipLink.style.zIndex = '9999';
+        
+        document.body.insertBefore(skipLink, document.body.firstChild);

@@ -1,0 +1,97 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <h2>About Social Stories</h2>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">What are Social Stories?</h5>
+                <p class="card-text">
+                    Social Stories are short descriptions of social situations that help individuals understand and respond appropriately to various social contexts. They were developed by Carol Gray in 1991 and have become a widely recognized tool for supporting individuals with autism spectrum disorders and other social learning challenges.
+                </p>
+                
+                <h6 class="mt-4">Key Benefits:</h6>
+                <ul>
+                    <li><strong>Understanding:</strong> Help individuals comprehend social situations and expectations</li>
+                    <li><strong>Preparation:</strong> Reduce anxiety by providing advance information about what to expect</li>
+                    <li><strong>Learning:</strong> Teach appropriate social behaviours and responses</li>
+                    <li><strong>Independence:</strong> Promote self-confidence in social interactions</li>
+                    <li><strong>Communication:</strong> Provide a common language for discussing social situations</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">How Social Stories Work</h5>
+                <p class="card-text">
+                    Social Stories use specific criteria to describe social situations in a way that is meaningful and accessible to the reader. They typically include:
+                </p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Descriptive Sentences</h6>
+                        <p class="small">Define where situations occur, who is involved, what they are doing, and why.</p>
+                        
+                        <h6>Perspective Sentences</h6>
+                        <p class="small">Describe the feelings, thoughts, and reactions of others in the situation.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Directive Sentences</h6>
+                        <p class="small">Suggest appropriate responses or behaviours for the situation.</p>
+                        
+                        <h6>Affirmative Sentences</h6>
+                        <p class="small">Express commonly shared values or opinions within a culture.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Using This Application</h5>
+                <p class="card-text">
+                    Our Social Stories application makes it easy to create, edit, and manage personalised social stories. Whether you're a parent, teacher, therapist, or individual looking to better understand social situations, this tool provides a simple and effective way to create meaningful social learning content.
+                </p>
+                
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                    Get Started <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">Research & Evidence</h6>
+            </div>
+            <div class="card-body">
+                <p class="small">
+                    Social Stories are evidence-based interventions that have been extensively researched and proven effective for individuals with autism spectrum disorders and other social learning differences.
+                </p>
+                <p class="small">
+                    Studies have shown significant improvements in social understanding, appropriate behaviour, and reduced anxiety when Social Stories are used consistently.
+                </p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Who Can Benefit?</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Individuals with autism spectrum disorders</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>People with social anxiety</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Children learning social skills</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Adults navigating new social situations</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Anyone seeking to understand social expectations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

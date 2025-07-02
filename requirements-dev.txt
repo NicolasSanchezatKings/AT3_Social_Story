@@ -1,0 +1,15 @@
+# Development requirements
+-r requirements.txt
+
+# Testing
+pytest==7.4.3
+pytest-flask==1.3.0
+pytest-cov==4.1.0
+factory-boy==3.3.0
+
+# Documentation
+sphinx==7.2.6
+sphinx-rtd-theme==1.3.0
+
+# Development server enhancements
+flask-debugtoolbar==0.13.1
