@@ -1,6 +1,7 @@
 {% extends "layout/base.html" %}
 
 {% block content %}
+<span id="story-data-json" data-story-json='{{ story_data|tojson|safe }}' style="display:none;"></span>
 <div class="row">
     <div class="col-lg-8">
         <div class="card">
@@ -24,7 +25,7 @@
             </div>
             <div class="card-body">
                 <div class="story-content" id="story-content">
-                    {{ story.content | replace('\n', '<br>') | safe }}
+                    <div id="story-preview-container"></div>
                 </div>
             </div>
             <div class="card-footer bg-transparent">
@@ -53,6 +54,81 @@
     </div>
     
     <div class="col-lg-4">
+<script>
+// Render the story using the same deserializeBook logic as the editor
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('story-preview-container');
+    const storyDataSpan = document.getElementById('story-data-json');
+    let data = [];
+    if (storyDataSpan) {
+        let raw = storyDataSpan.getAttribute('data-story-json');
+        try {
+            // If raw is already an array, use it directly
+            if (raw && raw[0] === '[') {
+                data = JSON.parse(raw);
+            } else if (raw && raw !== 'null') {
+                // Try to parse as JSON string
+                data = JSON.parse(raw);
+            }
+        } catch (e) {
+            data = [];
+        }
+    }
+    if (!Array.isArray(data) || data.length === 0) {
+        container.innerHTML = '<div class="text-danger">No story content found.</div>';
+        return;
+    }
+    data.forEach(function(pageData) {
+        const page = document.createElement('div');
+        page.className = 'book-page';
+        page.style.backgroundColor = pageData.bgColor || '#fff';
+        page.style.backgroundImage = pageData.bgImage || '';
+        page.style.backgroundSize = pageData.bgSize || 'cover';
+        page.style.backgroundRepeat = pageData.bgRepeat || 'no-repeat';
+        page.style.backgroundPosition = pageData.bgPosition || 'center';
+        page.style.width = '320px';
+        page.style.height = '460px';
+        page.style.margin = '0 8px 20px 8px';
+        page.style.display = 'inline-block';
+        page.style.verticalAlign = 'top';
+        page.style.position = 'relative';
+        page.style.border = '2px solid #bbb';
+        page.style.borderRadius = '12px';
+        page.setAttribute('data-page-size', pageData.pageSize || 'A5');
+        page.setAttribute('data-orientation', pageData.orientation || 'portrait');
+        // Page body
+        const pb = document.createElement('div');
+        pb.className = 'page-body';
+        pb.innerHTML = pageData.html || '';
+        pb.style.position = 'relative';
+        pb.style.minHeight = '100%';
+        page.appendChild(pb);
+        // Images
+        (pageData.images || []).forEach(function(imgData) {
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'resizable';
+            imgContainer.style.position = imgData.style?.position || 'absolute';
+            imgContainer.style.top = imgData.style?.top || '50px';
+            imgContainer.style.left = imgData.style?.left || '50px';
+            imgContainer.style.width = imgData.style?.width || '180px';
+            imgContainer.style.height = imgData.style?.height || '120px';
+            imgContainer.style.zIndex = imgData.zIndex || '20';
+            imgContainer.style.float = imgData.style?.float || 'left';
+            imgContainer.style.margin = imgData.style?.margin || '8px 16px 8px 0';
+            // Image
+            const img = document.createElement('img');
+            img.src = imgData.src;
+            img.alt = 'Page image';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            imgContainer.appendChild(img);
+            page.appendChild(imgContainer);
+        });
+        container.appendChild(page);
+    });
+});
+</script>
         <!-- Story Actions -->
         <div class="card mb-4">
             <div class="card-header">
@@ -124,7 +200,10 @@
 function printStory() {
     const printWindow = window.open('', '_blank');
     const storyTitle = '{{ story.title|e }}';
-    const storyContent = document.getElementById('story-content').innerHTML;
+    // Escape backticks and ${} in storyContent to avoid breaking the template literal
+    let storyContent = document.getElementById('story-content').innerHTML
+        .replace(/`/g, '\\`')
+        .replace(/\$\{/g, '\\${');
     
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -156,7 +235,7 @@ function printStory() {
         <body>
             <h1>${storyTitle}</h1>
             <div class="story-content">${storyContent}</div>
-            <script>window.print(); window.close();</script>
+            <script>window.print(); window.close();<\/script>
         </body>
         </html>
     `);
@@ -196,4 +275,16 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 </script>
+
+<style>
+/* Constrain images in story content */
+.story-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 12px auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(25,118,210,0.08);
+}
+</style>
 {% endblock %}

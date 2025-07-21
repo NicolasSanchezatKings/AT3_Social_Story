@@ -181,13 +181,45 @@
             </div>
             <div class="card-body">
                 <p class="small">
-                    If you can't find the answer to your question here, don't hesitate to reach out for additional support.
+                    If you can't find the answer to your question here, please contact support using the form below.
                 </p>
-                <div class="d-grid">
-                    <a href="mailto:support@socialstories.com" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-envelope me-1"></i>Contact Support
-                    </a>
-                </div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+                <form method="POST" novalidate>
+                  {{ form.hidden_tag() }}
+                  <div class="mb-3">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control", placeholder="Your Name") }}
+                    {% for error in form.name.errors %}
+                      <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  <div class="mb-3">
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control", placeholder="Your Email") }}
+                    {% for error in form.email.errors %}
+                      <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  <div class="mb-3">
+                    {{ form.message.label(class="form-label") }}
+                    {{ form.message(class="form-control", rows=4, placeholder="How can we help?") }}
+                    {% for error in form.message.errors %}
+                      <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  <div class="d-grid">
+                    {{ form.submit(class="btn btn-primary") }}
+                  </div>
+                </form>
             </div>
         </div>
         

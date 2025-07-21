@@ -17,8 +17,8 @@ class StoryForm(FlaskForm):
     content = TextAreaField(
         'Content',
         validators=[
-            DataRequired(),
-            Length(min=10, message='Content must be at least 10 characters.')
+            DataRequired()
+            # Removed Length validator to allow large JSON content
         ]
     )
     is_published = BooleanField('Publish this story')

@@ -23,6 +23,10 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
+    profile_pic_url = db.Column(db.String(256), nullable=True)
+    gemini_api_key = db.Column(db.String(128), nullable=True)
+    serpapi_api_key = db.Column(db.String(128), nullable=True)
+    google_maps_api_key = db.Column(db.String(128), nullable=True)
     
     # Relationships
     stories = db.relationship('SocialStory', backref='author', lazy='dynamic', cascade='all, delete-orphan')

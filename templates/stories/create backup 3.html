@@ -28,10 +28,9 @@
                     }
                 });
             }
-            // --- Font Family, Size, and Color ---
+            // --- Font Family and Size ---
             const fontFamilySelect = document.getElementById('font-family');
             const fontSizeSelect = document.getElementById('font-size');
-            const foreColorInput = document.getElementById('fore-color');
             function applyFontFamily() {
                 if (!window.pages || typeof window.currentPageIndex !== 'number') return;
                 const page = window.pages[window.currentPageIndex];
@@ -52,18 +51,8 @@
                     pageBody.style.fontSize = ptMap[fontSizeSelect.value] || '12pt';
                 }
             }
-            function applyFontColor() {
-                if (!window.pages || typeof window.currentPageIndex !== 'number') return;
-                const page = window.pages[window.currentPageIndex];
-                if (!page) return;
-                const pageBody = page.querySelector('.page-body');
-                if (pageBody && foreColorInput) {
-                    pageBody.style.color = foreColorInput.value;
-                }
-            }
             if (fontFamilySelect) fontFamilySelect.addEventListener('change', applyFontFamily);
             if (fontSizeSelect) fontSizeSelect.addEventListener('change', applyFontSize);
-            if (foreColorInput) foreColorInput.addEventListener('input', applyFontColor);
             // Apply on page change
             const origShowPage = window.showPage;
             window.showPage = function(index, direction = 'next') {
@@ -464,77 +453,9 @@
             <div>
                 <button type="button" class="btn btn-outline-success btn-sm" id="btn-add-page" title="Add Page">+ Add Page</button>
                 <button type="button" class="btn btn-outline-danger btn-sm" id="btn-remove-page" title="Remove Current Page">− Remove Page</button>
-                <label class="btn btn-outline-primary btn-sm mb-0" for="globalImageInput" title="Upload Images">
-                    <i class="bi bi-image me-1"></i> Choose File
-                </label>
-                <input type="file" id="globalImageInput" accept="image/*" hidden multiple>
             </div>
 
             <!-- Image Upload -->
-            <!-- Page Background Controls -->
-            <div id="page-bg-controls" class="mb-3 d-flex align-items-center gap-3">
-              <label for="page-bg-color" class="form-label mb-0">Page Background Color:</label>
-              <input type="color" id="page-bg-color" value="#ffffff" class="form-control form-control-color" style="width: 40px; height: 40px;">
-              <label for="page-bg-image" class="form-label mb-0 ms-3">Page Background Image:</label>
-              <input type="file" id="page-bg-image" accept="image/*" class="form-control" style="max-width: 180px;">
-            </div>
-            <div>
-            <!-- Text Formatting Buttons -->
-            <div class="btn-group btn-group-sm" role="group" aria-label="Basic formatting">
-                <button type="button" class="btn btn-outline-secondary" data-cmd="bold" title="Bold"><strong>B</strong></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="italic" title="Italic"><em>I</em></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="underline" title="Underline"><u>U</u></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
-            </div>
-
-            <div class="btn-group btn-group-sm" role="group" aria-label="Text alignment">
-                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyLeft" title="Align Left"><i class="bi bi-text-left"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyCenter" title="Align Center"><i class="bi bi-text-center"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyRight" title="Align Right"><i class="bi bi-text-right"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyFull" title="Justify"><i class="bi bi-justify"></i></button>
-            </div>
-
-            <div class="btn-group btn-group-sm" role="group" aria-label="Lists">
-                <button type="button" class="btn btn-outline-secondary" data-cmd="insertUnorderedList" title="Bullet List"><i class="bi bi-list-ul"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="insertOrderedList" title="Numbered List"><i class="bi bi-list-ol"></i></button>
-
-            <!-- Font Family -->
-            <select id="font-family" class="form-select form-select-sm w-auto" title="Font Family" aria-label="Font Family Selector">
-                <option value="Arial" selected>Arial</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Tahoma">Tahoma</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Verdana">Verdana</option>
-            </select>
-
-            <!-- Font Size -->
-            <select id="font-size" class="form-select form-select-sm w-auto" title="Font Size" aria-label="Font Size Selector">
-                <option value="1">8pt</option>
-                <option value="2">10pt</option>
-                <option value="3" selected>12pt</option>
-                <option value="4">14pt</option>
-                <option value="5">18pt</option>
-                <option value="6">24pt</option>
-                <option value="7">36pt</option>
-            </select>
-
-            <!-- Text Color -->
-            <input type="color" id="fore-color" class="form-control form-control-color w-auto me-2" title="Text Color" aria-label="Text Color Picker" value="#000000" style="height:34px;">
-
-            <!-- Highlight Color -->
-            <input type="color" id="hilite-color" class="form-control form-control-color w-auto me-3" title="Highlight Color" aria-label="Highlight Color Picker" value="#ffff00" style="height:34px;">
-            </div>
-            <!-- Remove Background Image Button (visually between color pickers and undo/redo) -->
-            <button id="remove-bg-image" type="button" class="btn btn-outline-danger mx-2" style="order:2;">Remove Background Image</button>
-        </div>
-            <!-- Undo / Redo -->
-            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Undo / Redo" style="order:3;">
-                <button type="button" class="btn btn-outline-secondary" id="undo" title="Undo"><i class="bi bi-arrow-counterclockwise"></i></button>
-                <button type="button" class="btn btn-outline-secondary" id="redo" title="Redo"><i class="bi bi-arrow-clockwise"></i></button>
-
-            </div>
-        </div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCg__vEXmZNhrmTCQhJqDgpUkf0nzzo3MM&libraries=places"></script>
     <script>
     // Google Maps Autocomplete, Street View, and Image Gallery
@@ -713,7 +634,78 @@
     </div>
 </div>
 
+<!-- Page Background Controls -->
+<div id="page-bg-controls" class="mb-3 d-flex align-items-center gap-3">
+  <label for="page-bg-color" class="form-label mb-0">Page Background Color:</label>
+  <input type="color" id="page-bg-color" value="#ffffff" class="form-control form-control-color" style="width: 40px; height: 40px;">
+  <label for="page-bg-image" class="form-label mb-0 ms-3">Page Background Image:</label>
+  <input type="file" id="page-bg-image" accept="image/*" class="form-control" style="max-width: 180px;">
+</div>
+<!-- Move Remove Background Image button into the toolbar next to color pickers -->
+            <!-- Restore original order: Choose File and formatting buttons above font/color controls -->
+            <div>
+                <label class="btn btn-outline-primary btn-sm mb-0" for="globalImageInput" title="Upload Images">
+                    <i class="bi bi-image me-1"></i> Choose File
+                </label>
+                <input type="file" id="globalImageInput" accept="image/*" hidden multiple>
+            </div>
 
+            <!-- Text Formatting Buttons -->
+            <div class="btn-group btn-group-sm" role="group" aria-label="Basic formatting">
+                <button type="button" class="btn btn-outline-secondary" data-cmd="bold" title="Bold"><strong>B</strong></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="italic" title="Italic"><em>I</em></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="underline" title="Underline"><u>U</u></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+            </div>
+
+            <div class="btn-group btn-group-sm" role="group" aria-label="Text alignment">
+                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyLeft" title="Align Left"><i class="bi bi-text-left"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyCenter" title="Align Center"><i class="bi bi-text-center"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyRight" title="Align Right"><i class="bi bi-text-right"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyFull" title="Justify"><i class="bi bi-justify"></i></button>
+            </div>
+
+            <div class="btn-group btn-group-sm" role="group" aria-label="Lists">
+                <button type="button" class="btn btn-outline-secondary" data-cmd="insertUnorderedList" title="Bullet List"><i class="bi bi-list-ul"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="insertOrderedList" title="Numbered List"><i class="bi bi-list-ol"></i></button>
+            </div>
+
+            <!-- Font Family -->
+            <select id="font-family" class="form-select form-select-sm w-auto" title="Font Family" aria-label="Font Family Selector">
+                <option value="Arial" selected>Arial</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Tahoma">Tahoma</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+
+            <!-- Font Size -->
+            <select id="font-size" class="form-select form-select-sm w-auto" title="Font Size" aria-label="Font Size Selector">
+                <option value="1">8pt</option>
+                <option value="2">10pt</option>
+                <option value="3" selected>12pt</option>
+                <option value="4">14pt</option>
+                <option value="5">18pt</option>
+                <option value="6">24pt</option>
+                <option value="7">36pt</option>
+            </select>
+
+            <!-- Text Color -->
+            <input type="color" id="fore-color" class="form-control form-control-color w-auto me-2" title="Text Color" aria-label="Text Color Picker" value="#000000" style="height:34px;">
+
+            <!-- Highlight Color -->
+            <input type="color" id="hilite-color" class="form-control form-control-color w-auto me-3" title="Highlight Color" aria-label="Highlight Color Picker" value="#ffff00" style="height:34px;">
+
+            <!-- Remove Background Image Button (visually between color pickers and undo/redo) -->
+            <button id="remove-bg-image" type="button" class="btn btn-outline-danger mx-2" style="order:2;">Remove Background Image</button>
+
+            <!-- Undo / Redo -->
+            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Undo / Redo" style="order:3;">
+                <button type="button" class="btn btn-outline-secondary" id="undo" title="Undo"><i class="bi bi-arrow-counterclockwise"></i></button>
+                <button type="button" class="btn btn-outline-secondary" id="redo" title="Redo"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+        </div>
 
         <!-- Page Customization -->
         <div class="d-flex gap-3 align-items-center mb-3">

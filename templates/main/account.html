@@ -1,0 +1,56 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="bi bi-person-circle me-2"></i>Edit Account</h2>
+    <form method="POST" enctype="multipart/form-data" id="account-form">
+        {{ form.hidden_tag() }}
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <img src="{{ current_user.profile_pic_url or url_for('static', filename='img/default_profile.png') }}" alt="Profile Picture" class="rounded-circle shadow" style="width:120px;height:120px;object-fit:cover;">
+                <div class="mt-3">
+                    <label class="btn btn-outline-primary btn-sm mb-0" for="profilePicInput">
+                        <i class="bi bi-image me-1"></i> Change Profile Picture
+                    </label>
+                    <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" hidden>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="mb-3">
+                    {{ form.username.label(class="form-label") }}
+                    {{ form.username(class="form-control", placeholder="Username") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control", placeholder="Email") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.gemini_api_key.label(class="form-label") }}
+                    {{ form.gemini_api_key(class="form-control", placeholder="Gemini API Key") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.serpapi_api_key.label(class="form-label") }}
+                    {{ form.serpapi_api_key(class="form-control", placeholder="SerpAPI Key") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.google_maps_api_key.label(class="form-label") }}
+                    {{ form.google_maps_api_key(class="form-control", placeholder="Google Maps API Key") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control", placeholder="New Password") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.confirm_password.label(class="form-label") }}
+                    {{ form.confirm_password(class="form-control", placeholder="Confirm New Password") }}
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

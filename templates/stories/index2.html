@@ -30,40 +30,31 @@
                 <h5 class="card-title">{{ story.title }}</h5>
                 <div class="card-text flex-grow-1" style="max-height:120px;overflow:auto;background:#f8f9fa;border-radius:8px;padding:8px;">
                     {% set preview = None %}
-                    {% if story.pages and story.pages|length > 0 %}
-                        {% set first_page = story.pages[0] %}
+                    {% if story.content %}
+                        {% set pages = story.content | tojson | safe %}
+                        {% set first_page = None %}
+                        {% if pages and pages.startswith('[') %}
+                            {% set first_page = pages | fromjson | first %}
+                        {% endif %}
                         {% if first_page %}
-                            {% set book_styles = [
-                                'width:120px;',
-                                'height:180px;',
-                                'display:inline-block;',
-                                'vertical-align:top;',
-                                'border:1px solid #bbb;',
-                                'border-radius:8px;',
-                                'overflow:hidden;',
-                                'position:relative;',
-                                'background:' ~ (first_page.bgColor if first_page.bgColor else '#fff') ~ ';',
-                                (first_page.bgImage is defined and first_page.bgImage) and ('background-image:url(\'' ~ first_page.bgImage ~ '\');background-size:cover;background-repeat:no-repeat;') or ''
-                            ] %}
-                            <div class="book-page" style="{{ book_styles | select('string') | join(' ') }}">
-                                <div class="page-body" style="font-size:13px;line-height:1.3;padding:6px;white-space:pre-wrap;">
-                                    {{ first_page.html|safe }}
-                                </div>
+                            {% set page_style = 'width:120px;height:180px;display:inline-block;vertical-align:top;border:1px solid #bbb;border-radius:8px;overflow:hidden;position:relative;' %}
+                            {% set page_style = page_style + 'background:' + (first_page.bgColor if first_page.bgColor else '#fff') + ';' %}
+                            {% if first_page.bgImage %}
+                                {% set page_style = page_style + 'background-image:url(' + first_page.bgImage + ');background-size:cover;background-repeat:no-repeat;' %}
+                            {% endif %}
+                            <div class="book-page"{% if page_style and page_style|length > 0 %} style="{{ page_style }}"{% endif %}>
+                                <div class="page-body" style="font-size:13px;line-height:1.3;padding:6px;white-space:pre-wrap;">{{ first_page.html|safe }}</div>
                                 {% if first_page.images %}
                                     {% for img in first_page.images %}
-                                        {% set img_styles = [
-                                            'position:absolute;',
-                                            img.style if img.style else '',
-                                            img.zIndex is defined and ('z-index:' ~ img.zIndex ~ ';') or 'z-index:20;',
-                                            img.dataX is defined and ('left:' ~ img.dataX ~ 'px;') or '',
-                                            img.dataY is defined and ('top:' ~ img.dataY ~ 'px;') or '',
-                                            img.width is defined and ('width:' ~ img.width ~ 'px;') or 'width:60px;',
-                                            img.height is defined and ('height:' ~ img.height ~ 'px;') or 'height:60px;',
-                                            'object-fit:' ~ (img.objectFit if img.objectFit is defined else 'contain') ~ ';',
-                                            'border-radius:' ~ (img.borderRadius if img.borderRadius is defined else '4px') ~ ';',
-                                            'box-shadow:' ~ (img.boxShadow if img.boxShadow is defined else '0 1px 4px rgba(25,118,210,0.08);')
-                                        ] %}
-                                        <img src="{{ img.src }}" alt="Page image" style="{{ img_styles | select('string') | join(' ') }}">
+                                        {% set img_style = 'position:absolute;' %}
+                                        {% if img.style %}{% set img_style = img_style + img.style + ';' %}{% endif %}
+                                        {% set img_style = img_style + 'z-index:' + (img.zIndex|string if img.zIndex is defined else '20') + ';' %}
+                                        {% if img.dataX is defined %}{% set img_style = img_style + 'left:' + img.dataX|string + 'px;' %}{% endif %}
+                                        {% if img.dataY is defined %}{% set img_style = img_style + 'top:' + img.dataY|string + 'px;' %}{% endif %}
+                                        {% set img_style = img_style + 'width:' + (img.width|string if img.width is defined else '60px') + ';' %}
+                                        {% set img_style = img_style + 'height:' + (img.height|string if img.height is defined else '60px') + ';' %}
+                                        {% set img_style = img_style + 'object-fit:contain;border-radius:4px;box-shadow:0 1px 4px rgba(25,118,210,0.08);' %}
+                                        <img src="{{ img.src }}" alt="Page image"{% if img_style and img_style|length > 0 %} style="{{ img_style }}"{% endif %} />
                                     {% endfor %}
                                 {% endif %}
                             </div>
@@ -74,11 +65,11 @@
                         <span class="text-muted">No preview available</span>
                     {% endif %}
                 </div>
-                <div class="card-text mt-2">
+                <div class="card-text">
                     <small class="text-muted">
                         <i class="bi bi-calendar3 me-1"></i>Created {{ story.created_at.strftime('%b %d, %Y') }}
                         {% if story.updated_at != story.created_at %}
-                            <br><i class="bi bi-pencil me-1"></i>Updated {{ story.updated_at.strftime('%b %d, %Y') }}
+                        <br><i class="bi bi-pencil me-1"></i>Updated {{ story.updated_at.strftime('%b %d, %Y') }}
                         {% endif %}
                     </small>
                 </div>
@@ -91,10 +82,12 @@
                     <a href="{{ url_for('stories.edit', id=story.id) }}" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-pencil me-1"></i>Edit
                     </a>
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete('{{ story.id }}', '{{ story.title|e }}')">
-                        <i class="bi bi-trash me-1"></i>Delete
+    <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete('{{ story.id }}', '{{ story.title|e }}')">
+                    <i class="bi bi-trash me-1"></i>Delete
                     </button>
                 </div>
+                
+                <!-- Hidden delete form -->
                 <form id="delete-form-{{ story.id }}" action="{{ url_for('stories.delete', id=story.id) }}" method="POST" style="display: none;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 </form>
@@ -104,6 +97,7 @@
     {% endfor %}
 </div>
 
+<!-- Pagination -->
 {% if pagination.pages > 1 %}
 <nav aria-label="Stories pagination">
     <ul class="pagination justify-content-center">
@@ -114,17 +108,25 @@
                 </a>
             </li>
         {% endif %}
+        
         {% for page_num in pagination.iter_pages() %}
             {% if page_num %}
                 {% if page_num != pagination.page %}
-                    <li class="page-item"><a class="page-link" href="{{ url_for('stories.index', page=page_num) }}">{{ page_num }}</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('stories.index', page=page_num) }}">{{ page_num }}</a>
+                    </li>
                 {% else %}
-                    <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
                 {% endif %}
             {% else %}
-                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
             {% endif %}
         {% endfor %}
+        
         {% if pagination.has_next %}
             <li class="page-item">
                 <a class="page-link" href="{{ url_for('stories.index', page=pagination.next_num) }}">
@@ -137,13 +139,33 @@
 {% endif %}
 
 {% else %}
+<!-- Empty state -->
 <div class="text-center py-5">
     <i class="bi bi-journal-x" style="font-size: 4rem; color: #c6cfd7;"></i>
     <h4 style="color: #c6cfd7;">No stories yet</h4>
-    <p style="color:#c6cfd7;">Time to create your first story!</p>
+    <p style="color:#c6cfd7;">
+        Create your first social story to help understand and navigate social situations.
+    </p>
     <a href="{{ url_for('stories.create') }}" class="btn btn-primary btn-lg">
         <i class="bi bi-plus-circle me-2"></i>Create Your First Story
     </a>
+    
+    <div class="row mt-5 justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <i style="color: black;" class="bi bi-lightbulb me-2"></i>
+                    <h6 style="color: black; font-weight: bold;">Getting Started Tips</h6>
+                    <ul class="list-unstyled text-start mt-3">
+                        <li style="color: black;" class="mb-2"><i style="font-weight: bold; color:green;" class="bi bi-check-circle text-success me-2"></i>Start with simple, everyday situations</li>
+                        <li style="color: black;" class="mb-2"><i style="font-weight: bold; color: green;" class="bi bi-check-circle text-success me-2"></i>Use clear, positive language</li>
+                        <li style="color: black;" class="mb-2"><i style="font-weight: bold; color: green;" class="bi bi-check-circle text-success me-2"></i>Write from a first-person perspective</li>
+                        <li style="color: black;" class="mb-2"><i style="font-weight: bold; color: green;" class="bi bi-check-circle text-success me-2"></i>Keep stories short and focused</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}
 {% endblock %}

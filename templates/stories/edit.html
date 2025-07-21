@@ -5,10 +5,42 @@
     <div class="col-lg-8">
         <div class="card">
             <div class="card-header">
-                <h4 class="mb-0">
-                    <i class="bi bi-pencil me-2"></i>Edit Story
+                <h4 class="mb-0" id="editor-header">
+                    Edit Story
                 </h4>
             </div>
+            <script>
+            // Dynamically set header icon for context relevance
+            document.addEventListener('DOMContentLoaded', function() {
+                const headerIcon = document.getElementById('editor-header-icon');
+                // If editing a story with a cover image
+                if (window.storyContent && Array.isArray(window.storyContent) && window.storyContent.length > 0) {
+                    let coverImg = null;
+                    if (window.storyContent[0].images && window.storyContent[0].images.length > 0) {
+                        coverImg = window.storyContent[0].images[0].src;
+                    }
+                    if (coverImg) {
+                        headerIcon.src = coverImg;
+                        headerIcon.alt = 'Story Cover Image';
+                    }
+                } else {
+                    // If using a template, show template icon if available
+                    function getQueryParam(name) {
+                        const url = new URL(window.location.href);
+                        return url.searchParams.get(name);
+                    }
+                    const templateImgs = getQueryParam('template_imgs');
+                    if (templateImgs) {
+                        const imgs = templateImgs.split('|~|');
+                        if (imgs.length > 0 && imgs[0].trim() !== '') {
+                            headerIcon.src = imgs[0];
+                            headerIcon.alt = 'Template Icon';
+                        }
+                    }
+                }
+                // Otherwise, keep default logo
+            });
+            </script>
             <div class="card-body">
                 <form method="POST" id="story-form" novalidate>
                     {{ form.hidden_tag() }}
@@ -25,17 +57,299 @@
                         {% endif %}
                     </div>
                     
+
+                    <!-- Use hidden input and JS for robust JSON serialization -->
+                    <input type="hidden" id="story-content-hidden" name="content">
+                    {% set story_content = story_content if story_content is defined else (story.content if story is defined and story.content is defined else None) %}
+                    <span id="story-content-json" data-story-content='{{ story_content|tojson|safe if story_content else 'null' }}' style="display:none;"></span>
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        window.storyContent = null;
+                        var storyContentSpan = document.getElementById('story-content-json');
+                        if (storyContentSpan) {
+                            try {
+                                var data = storyContentSpan.getAttribute('data-story-content');
+                                if (data && data !== 'null') {
+                                    window.storyContent = JSON.parse(data);
+                                }
+                            } catch (e) { window.storyContent = null; }
+                        }
+                        if (window.storyContent && Array.isArray(window.storyContent) && typeof window.deserializeBook === 'function') {
+                            window.deserializeBook(JSON.stringify(window.storyContent));
+                        }
+                    });
+                    </script>
+                    <!-- --- FULL EDITOR UI AND LOGIC FROM CREATE.HTML BELOW --- -->
+                    <!-- BEGIN: Editor UI from create.html -->
                     <div class="mb-3">
-                        {{ form.content.label(class="form-label") }}
-                        {{ form.content(class="form-control" + (" is-invalid" if form.content.errors else ""), rows="12") }}
-                        {% if form.content.errors %}
-                            <div class="invalid-feedback">
-                                {% for error in form.content.errors %}
-                                    {{ error }}
-                                {% endfor %}
+                        <div id="toolbar" class="custom-toolbar"> ...editor toolbar and controls... </div>
+                        <div id="book-wrapper" class="position-relative mx-auto" tabindex="0" style="outline:none;">
+                            <div id="book-page-container" class="book-page-flip" aria-live="polite" aria-atomic="true" aria-relevant="additions removals" style="display:flex; justify-content:center; align-items:center; position:relative;">
+                                <div class="book-crease"></div>
                             </div>
-                        {% endif %}
+                            <button type="button" id="prev-page" class="btn btn-outline-secondary" style="position:absolute; left:10px; top:50%; transform:translateY(-50%);" aria-label="Previous Page">&larr;</button>
+                            <button type="button" id="next-page" class="btn btn-outline-secondary" style="position:absolute; right:10px; top:50%; transform:translateY(-50%);" aria-label="Next Page">&rarr;</button>
+                        </div>
                     </div>
+                    <!-- END: Editor UI from create.html -->
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const form = document.getElementById('story-form');
+                        if (form) {
+                            form.addEventListener('submit', function(e) {
+                                if (typeof window.serializeBook === 'function') {
+                                    document.getElementById('story-content-hidden').value = window.serializeBook();
+                                }
+                            });
+                        }
+                        // --- Assign storyContent from hidden span for robust JS ---
+                        window.storyContent = null;
+                        const storyContentSpan = document.getElementById('story-content-json');
+                        if (storyContentSpan) {
+                            try {
+                                let data = storyContentSpan.getAttribute('data-story-content');
+                                if (data && data !== 'null') {
+                                    window.storyContent = JSON.parse(data);
+                                } else {
+                                    window.storyContent = null;
+                                }
+                            } catch (err) {
+                                window.storyContent = null;
+                            }
+                        }
+                        // --- Robustly load all story content into editor ---
+                        if (window.storyContent && Array.isArray(window.storyContent)) {
+                            if (typeof window.deserializeBook === 'function') {
+                                window.deserializeBook(JSON.stringify(window.storyContent));
+                            }
+                        }
+                    });
+                    // --- Ensure only one page is visible at a time ---
+                    window.showPage = function(index, direction = 'next') {
+                        if (!window.pages || index < 0 || index >= window.pages.length) return;
+                        window.pages.forEach(p => { p.style.display = 'none'; p.classList.remove('active', 'flip-3d-right', 'flip-3d-left'); });
+                        const page = window.pages[index];
+                        if (page) {
+                            page.style.display = 'block';
+                            page.classList.add('active');
+                        }
+                        window.currentPageIndex = index;
+                        if (typeof window.updatePageControls === 'function') window.updatePageControls();
+                        // Ensure only one page is visible at a time
+                        window.pages.forEach((p, idx) => {
+                            if (idx !== window.currentPageIndex) p.style.display = 'none';
+                        });
+                    };
+
+                    // --- Auto page overflow handling ---
+                    function autoSplitOverflow(page) {
+                        if (!page) return;
+                        const pageBody = page.querySelector('.page-body');
+                        if (!pageBody) return;
+                        // Only split if overflow detected
+                        if (pageBody.scrollHeight > pageBody.clientHeight + 8) {
+                            // Find split point in text
+                            let text = pageBody.innerText;
+                            let splitIdx = Math.floor(text.length * (pageBody.clientHeight / pageBody.scrollHeight));
+                            // Try to split at nearest space before splitIdx
+                            let safeIdx = text.lastIndexOf(' ', splitIdx);
+                            if (safeIdx < 20) safeIdx = splitIdx; // fallback
+                            let firstText = text.slice(0, safeIdx).trim();
+                            let overflowText = text.slice(safeIdx).trim();
+                            // Move overflow text to new page
+                            pageBody.innerText = firstText;
+                            const newPage = window.createPage();
+                            newPage.querySelector('.page-body').innerText = overflowText;
+                            // Move overflowing images if any
+                            const images = Array.from(page.querySelectorAll('.resizable'));
+                            images.forEach(img => {
+                                const imgBottom = img.offsetTop + img.offsetHeight;
+                                if (imgBottom > pageBody.clientHeight) {
+                                    newPage.appendChild(img);
+                                }
+                            });
+                            window.pages.splice(window.pages.indexOf(page) + 1, 0, newPage);
+                            window.bookContainer.appendChild(newPage);
+                            if (typeof window.saveState === 'function') window.saveState();
+                        }
+                    }
+                    // Monitor page edits for overflow
+                    document.addEventListener('DOMContentLoaded', function() {
+                        setInterval(() => {
+                            if (window.pages && window.pages.length > 0) {
+                                window.pages.forEach(page => autoSplitOverflow(page));
+                            }
+                        }, 1000); // check every second
+                    });
+// Robust image creation logic for imported images
+window.createResizableImage = function(src) {
+    const container = document.createElement('div');
+    container.classList.add('resizable');
+    container.style.width = '180px';
+    container.style.height = '120px';
+    container.style.top = '50px';
+    container.style.left = '50px';
+    container.style.position = 'absolute';
+    container.style.zIndex = 20;
+    container.setAttribute('data-x', '0');
+    container.setAttribute('data-y', '0');
+
+    // Text wrapping: image floats left, text wraps
+    container.style.float = 'left';
+    container.style.margin = '8px 16px 8px 0';
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = 'Inserted Image';
+    img.style.pointerEvents = 'none';
+    img.style.display = 'block';
+    img.style.background = 'rgba(255,255,255,0.85)';
+    img.style.borderRadius = '6px';
+    img.style.boxShadow = '0 0 5px rgba(0,0,0,0.1)';
+    container.appendChild(img);
+
+    // Remove button (always visible, above image)
+    const removeBtn = document.createElement('button');
+    removeBtn.innerHTML = '&times;';
+    removeBtn.classList.add('remove-btn');
+    removeBtn.title = 'Remove Image';
+    removeBtn.style.zIndex = 100;
+    removeBtn.style.position = 'absolute';
+    removeBtn.style.top = '2px';
+    removeBtn.style.right = '2px';
+    removeBtn.style.background = '#dc3545';
+    removeBtn.style.color = '#fff';
+    removeBtn.style.border = 'none';
+    removeBtn.style.borderRadius = '50%';
+    removeBtn.style.width = '28px';
+    removeBtn.style.height = '28px';
+    removeBtn.style.fontSize = '18px';
+    removeBtn.style.fontWeight = 'bold';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.style.lineHeight = '28px';
+    removeBtn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+    removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        container.remove();
+        if (typeof saveState === 'function') saveState();
+    });
+    container.appendChild(removeBtn);
+
+    // Layer controls container
+    const controls = document.createElement('div');
+    controls.className = 'image-controls';
+
+    const bringForwardBtn = document.createElement('button');
+    bringForwardBtn.title = 'Bring Forward';
+    bringForwardBtn.innerHTML = '<i class="bi bi-arrow-up"></i>';
+    bringForwardBtn.type = 'button';
+    bringForwardBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        let currentZ = parseInt(container.style.zIndex) || 20;
+        container.style.zIndex = currentZ + 1;
+        if (typeof saveState === 'function') saveState();
+    });
+
+    const sendBackwardBtn = document.createElement('button');
+    sendBackwardBtn.title = 'Send Backward';
+    sendBackwardBtn.innerHTML = '<i class="bi bi-arrow-down"></i>';
+    sendBackwardBtn.type = 'button';
+    sendBackwardBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        let currentZ = parseInt(container.style.zIndex) || 20;
+        if (currentZ > 1) container.style.zIndex = currentZ - 1;
+        if (typeof saveState === 'function') saveState();
+    });
+
+    controls.appendChild(bringForwardBtn);
+    controls.appendChild(sendBackwardBtn);
+    container.appendChild(controls);
+
+    return container;
+}
+                    };
+                    // --- Add Google Image Search UI ---
+                    const googleImageDiv = document.createElement('div');
+                    googleImageDiv.className = 'mb-3';
+                    googleImageDiv.innerHTML = `
+                        <label for="google-image-search" class="form-label">Search Google Images to add to your story:</label>
+                        <div class="input-group">
+                            <input type="text" id="google-image-search" class="form-control" placeholder="Search Google Images..." autocomplete="off">
+                            <button type="button" class="btn btn-outline-primary" id="google-image-search-btn">Search</button>
+                        </div>
+                        <div id="google-images" class="mt-3" style="overflow-x:auto; white-space:nowrap; display:flex; gap:12px;"></div>
+                    `;
+                    const toolbar = document.getElementById('toolbar');
+                    if (toolbar) toolbar.parentNode.insertBefore(googleImageDiv, toolbar.nextSibling);
+                    document.getElementById('google-image-search-btn').addEventListener('click', function() {
+                        const searchGoogleImages = () => {
+                            const query = document.getElementById('google-image-search').value.trim();
+                            if (!query) return;
+                            const imagesDiv = document.getElementById('google-images');
+                            imagesDiv.innerHTML = '<div class="text-muted">Searching Google Images...</div>';
+                            fetch(`/api/google_image_search?query=${encodeURIComponent(query)}`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    imagesDiv.innerHTML = '';
+                                    if (data.images && data.images.length > 0) {
+                                        data.images.forEach(imgUrl => {
+                                            const wrapper = document.createElement('div');
+                                            wrapper.style.display = 'inline-block';
+                                            wrapper.style.position = 'relative';
+                                            wrapper.style.marginRight = '8px';
+                                            const img = document.createElement('img');
+                                            img.src = imgUrl;
+                                            img.className = 'rounded shadow';
+                                            img.alt = 'Google Image';
+                                            img.style.width = '180px';
+                                            img.style.height = '120px';
+                                            img.style.objectFit = 'cover';
+                                            const btn = document.createElement('button');
+                                            btn.className = 'btn btn-sm btn-primary';
+                                            btn.type = 'button';
+                                            btn.style.position = 'absolute';
+                                            btn.style.bottom = '6px';
+                                            btn.style.left = '50%';
+                                            btn.style.transform = 'translateX(-50%)';
+                                            btn.style.display = 'flex';
+                                            btn.style.alignItems = 'center';
+                                            btn.innerHTML = '<i class="bi bi-book me-1"></i> Add image to story';
+                                            btn.addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (!window.pages || window.pages.length === 0) {
+                                                    alert('No pages available to add the image. Please add a page first.');
+                                                    return;
+                                                }
+                                                if (typeof window.currentPageIndex !== 'number' || window.currentPageIndex < 0 || window.currentPageIndex >= window.pages.length) {
+                                                    window.currentPageIndex = 0;
+                                                }
+                                                if (typeof window.addImageToPage === 'function') {
+                                                    window.addImageToPage(imgUrl);
+                                                } else {
+                                                    alert('Image add function not available.');
+                                                }
+                                            });
+                                            wrapper.appendChild(img);
+                                            wrapper.appendChild(btn);
+                                            imagesDiv.appendChild(wrapper);
+                                        });
+                                    } else {
+                                        imagesDiv.innerHTML = '<div class="text-danger">No images found for this search.</div>';
+                                    }
+                                })
+                                .catch(() => {
+                                    imagesDiv.innerHTML = '<div class="text-danger">Error searching Google Images.</div>';
+                                });
+                        };
+                        document.getElementById('google-image-search-btn').addEventListener('click', searchGoogleImages);
+                        document.getElementById('google-image-search').addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                searchGoogleImages();
+                            }
+                        });
+                    </script>
                     
                     <div class="mb-3">
                         <div class="form-check">

@@ -28,10 +28,9 @@
                     }
                 });
             }
-            // --- Font Family, Size, and Color ---
+            // --- Font Family and Size ---
             const fontFamilySelect = document.getElementById('font-family');
             const fontSizeSelect = document.getElementById('font-size');
-            const foreColorInput = document.getElementById('fore-color');
             function applyFontFamily() {
                 if (!window.pages || typeof window.currentPageIndex !== 'number') return;
                 const page = window.pages[window.currentPageIndex];
@@ -52,18 +51,8 @@
                     pageBody.style.fontSize = ptMap[fontSizeSelect.value] || '12pt';
                 }
             }
-            function applyFontColor() {
-                if (!window.pages || typeof window.currentPageIndex !== 'number') return;
-                const page = window.pages[window.currentPageIndex];
-                if (!page) return;
-                const pageBody = page.querySelector('.page-body');
-                if (pageBody && foreColorInput) {
-                    pageBody.style.color = foreColorInput.value;
-                }
-            }
             if (fontFamilySelect) fontFamilySelect.addEventListener('change', applyFontFamily);
             if (fontSizeSelect) fontSizeSelect.addEventListener('change', applyFontSize);
-            if (foreColorInput) foreColorInput.addEventListener('input', applyFontColor);
             // Apply on page change
             const origShowPage = window.showPage;
             window.showPage = function(index, direction = 'next') {
@@ -204,27 +193,11 @@
         // --- Ensure only one page is visible at a time ---
         window.showPage = function(index, direction = 'next') {
             if (!window.pages || index < 0 || index >= window.pages.length) return;
-            // Remove animation classes and hide all pages
-            window.pages.forEach((p, i) => {
-                p.style.display = 'none';
-                p.classList.remove('active', 'flip-3d-right', 'flip-3d-left');
-            });
+            window.pages.forEach(p => { p.style.display = 'none'; p.classList.remove('active', 'flip-3d-right', 'flip-3d-left'); });
             const page = window.pages[index];
             if (page) {
                 page.style.display = 'block';
                 page.classList.add('active');
-                // Add flip animation class based on direction
-                if (typeof direction === 'string' && window.currentPageIndex !== undefined && window.currentPageIndex !== null && window.currentPageIndex !== index) {
-                    if (direction === 'next' && index > window.currentPageIndex) {
-                        page.classList.add('flip-3d-right');
-                    } else if (direction === 'prev' && index < window.currentPageIndex) {
-                        page.classList.add('flip-3d-left');
-                    }
-                    // Remove animation class after animation duration
-                    setTimeout(() => {
-                        page.classList.remove('flip-3d-right', 'flip-3d-left');
-                    }, 500); // match CSS animation duration
-                }
             }
             window.currentPageIndex = index;
             // Enable/disable navigation buttons
@@ -348,16 +321,6 @@
                         imagesDiv.innerHTML = '<div class="text-danger">Error searching Google Images.</div>';
                     });
             });
-            // Enable Enter key to trigger SerpAPI image search
-            const serpapiInput = document.getElementById('serpapi-image-search');
-            if (serpapiInput) {
-                serpapiInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        document.getElementById('serpapi-image-search-btn').click();
-                    }
-                });
-            }
         });
         // --- Assign storyContent from hidden span for robust JS ---
         window.storyContent = null;
@@ -453,88 +416,20 @@
 
         <!-- Toolbar -->
         <div id="toolbar" class="custom-toolbar">
-            <!-- Toolbar UI -->
+            <!-- Templates UI -->
             <div id="template-toolbar" style="width:100%;margin-bottom:16px;background:#f8f9fa;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(25,118,210,0.08);">
-                <h5 style="margin-bottom:8px;color:#1976d2;"><i class="bi bi-layout-text-window me-1"></i> Story Toolbar Options</h5>
+                <h5 style="margin-bottom:8px;color:#1976d2;"><i class="bi bi-layout-text-window me-1"></i> Story Templates</h5>
                 <div class="d-flex gap-3 flex-wrap" id="template-list">
-                    <!-- Toolbar will be loaded here -->
+                    <!-- Templates will be loaded here -->
                 </div>
             </div>
             <!-- Page Controls -->
             <div>
                 <button type="button" class="btn btn-outline-success btn-sm" id="btn-add-page" title="Add Page">+ Add Page</button>
                 <button type="button" class="btn btn-outline-danger btn-sm" id="btn-remove-page" title="Remove Current Page">− Remove Page</button>
-                <label class="btn btn-outline-primary btn-sm mb-0" for="globalImageInput" title="Upload Images">
-                    <i class="bi bi-image me-1"></i> Choose File
-                </label>
-                <input type="file" id="globalImageInput" accept="image/*" hidden multiple>
             </div>
 
             <!-- Image Upload -->
-            <!-- Page Background Controls -->
-            <div id="page-bg-controls" class="mb-3 d-flex align-items-center gap-3">
-              <label for="page-bg-color" class="form-label mb-0">Page Background Color:</label>
-              <input type="color" id="page-bg-color" value="#ffffff" class="form-control form-control-color" style="width: 40px; height: 40px;">
-              <label for="page-bg-image" class="form-label mb-0 ms-3">Page Background Image:</label>
-              <input type="file" id="page-bg-image" accept="image/*" class="form-control" style="max-width: 180px;">
-            </div>
-            <div>
-            <!-- Text Formatting Buttons -->
-            <div class="btn-group btn-group-sm" role="group" aria-label="Basic formatting">
-                <button type="button" class="btn btn-outline-secondary" data-cmd="bold" title="Bold"><strong>B</strong></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="italic" title="Italic"><em>I</em></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="underline" title="Underline"><u>U</u></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
-            </div>
-
-            <div class="btn-group btn-group-sm" role="group" aria-label="Text alignment">
-                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyLeft" title="Align Left"><i class="bi bi-text-left"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyCenter" title="Align Center"><i class="bi bi-text-center"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyRight" title="Align Right"><i class="bi bi-text-right"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyFull" title="Justify"><i class="bi bi-justify"></i></button>
-            </div>
-
-            <div class="btn-group btn-group-sm" role="group" aria-label="Lists">
-                <button type="button" class="btn btn-outline-secondary" data-cmd="insertUnorderedList" title="Bullet List"><i class="bi bi-list-ul"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-cmd="insertOrderedList" title="Numbered List"><i class="bi bi-list-ol"></i></button>
-
-            <!-- Font Family -->
-            <select id="font-family" class="form-select form-select-sm w-auto" title="Font Family" aria-label="Font Family Selector">
-                <option value="Arial" selected>Arial</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Tahoma">Tahoma</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Verdana">Verdana</option>
-            </select>
-
-            <!-- Font Size -->
-            <select id="font-size" class="form-select form-select-sm w-auto" title="Font Size" aria-label="Font Size Selector">
-                <option value="1">8pt</option>
-                <option value="2">10pt</option>
-                <option value="3" selected>12pt</option>
-                <option value="4">14pt</option>
-                <option value="5">18pt</option>
-                <option value="6">24pt</option>
-                <option value="7">36pt</option>
-            </select>
-
-            <!-- Text Color -->
-            <input type="color" id="fore-color" class="form-control form-control-color w-auto me-2" title="Text Color" aria-label="Text Color Picker" value="#000000" style="height:34px;">
-
-            <!-- Highlight Color -->
-            <input type="color" id="hilite-color" class="form-control form-control-color w-auto me-3" title="Highlight Color" aria-label="Highlight Color Picker" value="#ffff00" style="height:34px;">
-            </div>
-            <!-- Remove Background Image Button (visually between color pickers and undo/redo) -->
-            <button id="remove-bg-image" type="button" class="btn btn-outline-danger mx-2" style="order:2;">Remove Background Image</button>
-        </div>
-            <!-- Undo / Redo -->
-            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Undo / Redo" style="order:3;">
-                <button type="button" class="btn btn-outline-secondary" id="undo" title="Undo"><i class="bi bi-arrow-counterclockwise"></i></button>
-                <button type="button" class="btn btn-outline-secondary" id="redo" title="Redo"><i class="bi bi-arrow-clockwise"></i></button>
-
-            </div>
-        </div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCg__vEXmZNhrmTCQhJqDgpUkf0nzzo3MM&libraries=places"></script>
     <script>
     // Google Maps Autocomplete, Street View, and Image Gallery
@@ -713,10 +608,76 @@
     </div>
 </div>
 
+            <div>
+                <label class="btn btn-outline-primary btn-sm mb-0" for="globalImageInput" title="Upload Images">
+                    <i class="bi bi-image me-1"></i> Choose File
+                </label>
+                <input type="file" id="globalImageInput" accept="image/*" hidden multiple>
+            </div>
 
+            <!-- Text Formatting Buttons -->
+            <div class="btn-group btn-group-sm" role="group" aria-label="Basic formatting">
+                <button type="button" class="btn btn-outline-secondary" data-cmd="bold" title="Bold"><strong>B</strong></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="italic" title="Italic"><em>I</em></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="underline" title="Underline"><u>U</u></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+            </div>
+
+            <div class="btn-group btn-group-sm" role="group" aria-label="Text alignment">
+                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyLeft" title="Align Left"><i class="bi bi-text-left"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyCenter" title="Align Center"><i class="bi bi-text-center"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyRight" title="Align Right"><i class="bi bi-text-right"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="justifyFull" title="Justify"><i class="bi bi-justify"></i></button>
+            </div>
+
+            <div class="btn-group btn-group-sm" role="group" aria-label="Lists">
+                <button type="button" class="btn btn-outline-secondary" data-cmd="insertUnorderedList" title="Bullet List"><i class="bi bi-list-ul"></i></button>
+                <button type="button" class="btn btn-outline-secondary" data-cmd="insertOrderedList" title="Numbered List"><i class="bi bi-list-ol"></i></button>
+            </div>
+
+            <!-- Font Family -->
+            <select id="font-family" class="form-select form-select-sm w-auto" title="Font Family" aria-label="Font Family Selector">
+                <option value="Arial" selected>Arial</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Tahoma">Tahoma</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+
+            <!-- Font Size -->
+            <select id="font-size" class="form-select form-select-sm w-auto" title="Font Size" aria-label="Font Size Selector">
+                <option value="1">8pt</option>
+                <option value="2">10pt</option>
+                <option value="3" selected>12pt</option>
+                <option value="4">14pt</option>
+                <option value="5">18pt</option>
+                <option value="6">24pt</option>
+                <option value="7">36pt</option>
+            </select>
+
+            <!-- Text Color -->
+            <input type="color" id="fore-color" class="form-control form-control-color w-auto" title="Text Color" aria-label="Text Color Picker" value="#000000" style="height:34px;">
+
+            <!-- Highlight Color -->
+            <input type="color" id="hilite-color" class="form-control form-control-color w-auto" title="Highlight Color" aria-label="Highlight Color Picker" value="#ffff00" style="height:34px;">
+
+            <!-- Undo / Redo -->
+            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Undo / Redo">
+                <button type="button" class="btn btn-outline-secondary" id="undo" title="Undo"><i class="bi bi-arrow-counterclockwise"></i></button>
+                <button type="button" class="btn btn-outline-secondary" id="redo" title="Redo"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+        </div>
 
         <!-- Page Customization -->
         <div class="d-flex gap-3 align-items-center mb-3">
+            <button type="button" id="remove-bg-image" class="btn btn-outline-danger btn-sm ms-2">Remove Background Image</button>
+            <label for="page-bg-color" class="mb-0">Page Background Color:</label>
+            <input type="color" id="page-bg-color" value="#ffffff" title="Change Page Background Color">
+
+            <label for="page-bg-image" class="mb-0">Page Background Image:</label>
+            <input type="file" id="page-bg-image" accept="image/*" title="Upload Page Background Image">
+
             <label for="page-size" class="mb-0">Page Size:</label>
             <select id="page-size" class="form-select form-select-sm w-auto" title="Select Page Size">
                 <option value="A5" selected>A5 (148x210 mm)</option>
@@ -1382,51 +1343,39 @@ label[for="globalImageInput"]::after {
             }
         });
         // No background color/image event listeners here!
-        // Listeners will be attached ONCE outside createPage
-        // Only set initial color/image for new page
-        return page;
-    }
     // Attach background color/image listeners ONCE, outside createPage
-// Page background color change
-pageBgColorInput.addEventListener('input', () => {
-    if (!pages[currentPageIndex]) return;
-    pages[currentPageIndex].style.backgroundColor = pageBgColorInput.value;
-    saveState();
-});
-
-// Page background image upload
-pageBgImageInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file || !pages[currentPageIndex]) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const page = pages[currentPageIndex];
-        page.style.backgroundImage = `url('${event.target.result}')`;
-        page.style.backgroundSize = 'cover';
-        page.style.backgroundRepeat = 'no-repeat';
-        page.style.backgroundPosition = 'center center';
-        saveState();
-    };
-    reader.readAsDataURL(file);
-    pageBgImageInput.value = null;
-});
-    const removeBgBtn = document.getElementById('remove-bg-image');
-    if (removeBgBtn && !removeBgBtn._listenerAdded) {
-        removeBgBtn.addEventListener('click', function() {
-            const idx = typeof window.currentPageIndex === 'number' ? window.currentPageIndex : 0;
-            const pgArr = window.pages;
-            if (pgArr && pgArr.length > 0 && idx >= 0 && idx < pgArr.length) {
-                const page = pgArr[idx];
-                if (page) {
-                    page.style.backgroundImage = '';
-                    page.style.backgroundSize = '';
-                    page.style.backgroundRepeat = '';
-                    page.style.backgroundPosition = '';
-                    if (typeof saveState === 'function') saveState();
-                }
+    if (pageBgColorInput) {
+        pageBgColorInput.addEventListener('input', function() {
+            if (!pages[currentPageIndex]) return;
+            pages[currentPageIndex].style.backgroundColor = pageBgColorInput.value;
+            saveState();
+        });
+    }
+    if (pageBgImageInput) {
+        pageBgImageInput.addEventListener('change', function() {
+            if (!pages[currentPageIndex]) return;
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    pages[currentPageIndex].style.backgroundImage = `url('${e.target.result}')`;
+                    pages[currentPageIndex].style.backgroundSize = 'cover';
+                    pages[currentPageIndex].style.backgroundPosition = 'center center';
+                    saveState();
+                };
+                reader.readAsDataURL(file);
             }
         });
-        removeBgBtn._listenerAdded = true;
+    }
+    const removeBgBtn = document.getElementById('remove-bg-image');
+    if (removeBgBtn) {
+        removeBgBtn.addEventListener('click', function() {
+            if (!pages[currentPageIndex]) return;
+            pages[currentPageIndex].style.backgroundImage = '';
+            saveState();
+        });
+    }
+        return page;
     }
 
     // Show page by index with 3D flip animation (single page only)
@@ -1792,47 +1741,30 @@ pageBgImageInput.addEventListener('change', e => {
         globalImageInput.value = null;
     });
 
+    // Page background color change
+    pageBgColorInput.addEventListener('input', () => {
+        if (!pages[currentPageIndex]) return;
+        pages[currentPageIndex].style.backgroundColor = pageBgColorInput.value;
+        // Remove bg image if color changed
+        pages[currentPageIndex].style.backgroundImage = '';
+        saveState();
+    });
 
-    // Attach page background color/image listeners after window.pages is initialized
-    setTimeout(function() {
-        if (pageBgColorInput && !pageBgColorInput._listenerAdded) {
-            pageBgColorInput.addEventListener('input', function() {
-                const idx = typeof window.currentPageIndex === 'number' ? window.currentPageIndex : 0;
-                const pgArr = window.pages;
-                if (pgArr && pgArr.length > 0 && idx >= 0 && idx < pgArr.length) {
-                    const page = pgArr[idx];
-                    if (page) {
-                        page.style.backgroundColor = pageBgColorInput.value;
-                        if (typeof saveState === 'function') saveState();
-                    }
-                }
-            });
-            pageBgColorInput._listenerAdded = true;
-        }
-        if (pageBgImageInput && !pageBgImageInput._listenerAdded) {
-            pageBgImageInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                const idx = typeof window.currentPageIndex === 'number' ? window.currentPageIndex : 0;
-                const pgArr = window.pages;
-                if (pgArr && pgArr.length > 0 && idx >= 0 && idx < pgArr.length) {
-                    const page = pgArr[idx];
-                    if (page) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            page.style.backgroundImage = `url('${event.target.result}')`;
-                            page.style.backgroundSize = 'cover';
-                            page.style.backgroundPosition = 'center center';
-                            if (typeof saveState === 'function') saveState();
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }
-                pageBgImageInput.value = null;
-            });
-            pageBgImageInput._listenerAdded = true;
-        }
-    }, 0);
+    // Page background image upload
+    pageBgImageInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            if (!pages[currentPageIndex]) return;
+            pages[currentPageIndex].style.backgroundImage = `url('${event.target.result}')`;
+            pages[currentPageIndex].style.backgroundSize = 'cover';
+            pages[currentPageIndex].style.backgroundPosition = 'center center';
+            saveState();
+        };
+        reader.readAsDataURL(file);
+        pageBgImageInput.value = null;
+    });
 
     // Page size change
     pageSizeSelect.addEventListener('change', () => {

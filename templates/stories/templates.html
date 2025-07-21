@@ -1,0 +1,642 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-3" style="color:#1976d2;"><i class="bi bi-layout-text-window me-2"></i>Story Inspiration</h2>
+    <div class="row">
+        {% set premade_templates = [
+            {
+                'id': 'morning',
+                'name': 'Morning Routine',
+                'desc': 'A simple morning routine template for children.',
+                'pages': [
+                    {'img': '/static/img/profile_1.png', 'text': 'Wake up and smile!'},
+                    {'img': '/static/img/social_story_logo.jpeg', 'text': 'Brush your teeth.'},
+                    {'img': '/static/img/AI_assistant.png', 'text': 'Get dressed for the day.'},
+                    {'img': '/static/img/social_story_logo.svg', 'text': 'Eat a healthy breakfast.'},
+                    {'img': '/static/img/favicon.ico', 'text': 'Go to school and learn.'}
+                ]
+            },
+            {
+                'id': 'friends',
+                'name': 'Making Friends',
+                'desc': 'A template for helping children learn about making friends.',
+                'pages': [
+                    {'img': '/static/img/profile_1.png', 'text': 'Say hello to someone new.'},
+                    {'img': '/static/img/social_story_logo.jpeg', 'text': 'Share your toys.'},
+                    {'img': '/static/img/AI_assistant.png', 'text': 'Listen to your friends.'},
+                    {'img': '/static/img/social_story_logo.svg', 'text': 'Be kind and helpful.'}
+                ]
+            },
+            {
+                'id': 'doctor',
+                'name': 'Going to the Doctor',
+                'desc': "A template for preparing for a doctor's visit.",
+                'pages': [
+                    {'img': '/static/img/profile_1.png', 'text': 'Arrive at the clinic.'},
+                    {'img': '/static/img/social_story_logo.jpeg', 'text': 'Wait your turn patiently.'},
+                    {'img': '/static/img/AI_assistant.png', 'text': 'Talk to the doctor.'},
+                    {'img': '/static/img/social_story_logo.svg', 'text': 'Get a sticker for being brave!'}
+                ]
+            },
+            {
+                'id': 'school',
+                'name': 'School Day',
+                'desc': 'A template for a typical school day.',
+                'pages': [
+                    {'img': '/static/img/profile_1.png', 'text': 'Go to class.'},
+                    {'img': '/static/img/social_story_logo.jpeg', 'text': 'Listen to the teacher.'},
+                    {'img': '/static/img/AI_assistant.png', 'text': 'Play at recess.'},
+                    {'img': '/static/img/social_story_logo.svg', 'text': 'Eat lunch with friends.'},
+                    {'img': '/static/img/favicon.ico', 'text': 'Go home and rest.'}
+                ]
+            },
+            {
+                'id': 'emotions',
+                'name': 'Emotions',
+                'desc': 'A template for expressing feelings.',
+                'pages': [
+                    {'img': '/static/img/profile_1.png', 'text': 'Sometimes I feel happy.'},
+                    {'img': '/static/img/social_story_logo.jpeg', 'text': 'Sometimes I feel sad.'},
+                    {'img': '/static/img/AI_assistant.png', 'text': 'It\'s okay to talk about feelings.'}
+                ]
+            },
+            { 'id': 'zoo', 'name': 'Trip to the Zoo', 'desc': 'A fun day at the zoo.', 'pages': [
+                {'img': '', 'text': 'Arrive at the zoo.'},
+                {'img': '', 'text': 'See the lions.'},
+                {'img': '', 'text': 'Feed the giraffes.'},
+                {'img': '', 'text': 'Watch the monkeys play.'},
+                {'img': '', 'text': 'Eat lunch at the zoo cafe.'},
+                {'img': '', 'text': 'Say goodbye to the animals.'}
+            ] },
+            { 'id': 'beach', 'name': 'Day at the Beach', 'desc': 'A sunny day by the sea.', 'pages': [
+                {'img': '', 'text': 'Pack your beach bag.'},
+                {'img': '', 'text': 'Build a sandcastle.'},
+                {'img': '', 'text': 'Swim in the ocean.'},
+                {'img': '', 'text': 'Collect seashells.'},
+                {'img': '', 'text': 'Eat ice cream.'},
+                {'img': '', 'text': 'Watch the sunset.'}
+            ] },
+            { 'id': 'birthday', 'name': 'Birthday Party', 'desc': 'A special birthday celebration.', 'pages': [
+                {'img': '', 'text': 'Send out invitations.'},
+                {'img': '', 'text': 'Decorate the house.'},
+                {'img': '', 'text': 'Play party games.'},
+                {'img': '', 'text': 'Blow out the candles.'},
+                {'img': '', 'text': 'Open presents.'},
+                {'img': '', 'text': 'Say thank you to friends.'}
+            ] },
+            { 'id': 'park', 'name': 'Visit to the Park', 'desc': 'A fun afternoon at the park.', 'pages': [
+                {'img': '', 'text': 'Put on your shoes.'},
+                {'img': '', 'text': 'Walk to the park.'},
+                {'img': '', 'text': 'Go down the slide.'},
+                {'img': '', 'text': 'Swing on the swings.'},
+                {'img': '', 'text': 'Have a picnic.'},
+                {'img': '', 'text': 'Walk home with family.'}
+            ] },
+            { 'id': 'library', 'name': 'Library Adventure', 'desc': 'A story about visiting the library.', 'pages': [
+                {'img': '', 'text': 'Arrive at the library.'},
+                {'img': '', 'text': 'Pick out a book.'},
+                {'img': '', 'text': 'Read quietly.'},
+                {'img': '', 'text': 'Check out your book.'},
+                {'img': '', 'text': 'Say thank you to the librarian.'}
+            ] },
+            { 'id': 'dentist', 'name': 'Dentist Visit', 'desc': 'A story to prepare for the dentist.', 'pages': [
+                {'img': '', 'text': 'Arrive at the dentist.'},
+                {'img': '', 'text': 'Sit in the big chair.'},
+                {'img': '', 'text': 'Open your mouth wide.'},
+                {'img': '', 'text': 'Get your teeth cleaned.'},
+                {'img': '', 'text': 'Get a sticker for being brave!'}
+            ] },
+            { 'id': 'grocery', 'name': 'Grocery Shopping', 'desc': 'A trip to the grocery store.', 'pages': [
+                {'img': '', 'text': 'Make a shopping list.'},
+                {'img': '', 'text': 'Go to the store.'},
+                {'img': '', 'text': 'Pick out fruits and veggies.'},
+                {'img': '', 'text': 'Help put groceries in the cart.'},
+                {'img': '', 'text': 'Pay at the checkout.'},
+                {'img': '', 'text': 'Help put groceries away at home.'}
+            ] },
+            { 'id': 'swimming', 'name': 'Swimming Lesson', 'desc': 'Learning to swim.', 'pages': [
+                {'img': '', 'text': 'Put on your swimsuit.'},
+                {'img': '', 'text': 'Listen to the instructor.'},
+                {'img': '', 'text': 'Practice kicking.'},
+                {'img': '', 'text': 'Blow bubbles in the water.'},
+                {'img': '', 'text': 'Swim with a float.'},
+                {'img': '', 'text': 'Get a high five for trying!' }
+            ] },
+            { 'id': 'airport', 'name': 'Trip to the Airport', 'desc': 'A story about flying on a plane.', 'pages': [
+                {'img': '', 'text': 'Pack your suitcase.'},
+                {'img': '', 'text': 'Arrive at the airport.'},
+                {'img': '', 'text': 'Go through security.'},
+                {'img': '', 'text': 'Wait at the gate.'},
+                {'img': '', 'text': 'Board the airplane.'},
+                {'img': '', 'text': 'Look out the window and fly!' }
+            ] },
+            { 'id': 'pet', 'name': 'Getting a New Pet', 'desc': 'A story about welcoming a new pet.', 'pages': [
+                {'img': '', 'text': 'Visit the animal shelter.'},
+                {'img': '', 'text': 'Pick out a pet.'},
+                {'img': '', 'text': 'Bring your pet home.'},
+                {'img': '', 'text': 'Feed your pet.'},
+                {'img': '', 'text': 'Play with your pet.'},
+                {'img': '', 'text': 'Give your pet a name.'}
+            ] },
+            { 'id': 'rainy', 'name': 'Rainy Day Fun', 'desc': 'A story for a rainy day.', 'pages': [
+                {'img': '', 'text': 'Look out the window at the rain.'},
+                {'img': '', 'text': 'Put on your raincoat.'},
+                {'img': '', 'text': 'Jump in puddles.'},
+                {'img': '', 'text': 'Come inside and dry off.'},
+                {'img': '', 'text': 'Drink hot chocolate.'}
+            ] },
+            { 'id': 'camping', 'name': 'Camping Trip', 'desc': 'A story about camping outdoors.', 'pages': [
+                {'img': '', 'text': 'Pack your backpack.'},
+                {'img': '', 'text': 'Set up the tent.'},
+                {'img': '', 'text': 'Go for a hike.'},
+                {'img': '', 'text': 'Roast marshmallows.'},
+                {'img': '', 'text': 'Tell stories by the campfire.'},
+                {'img': '', 'text': 'Sleep under the stars.'}
+            ] },
+            { 'id': 'moving', 'name': 'Moving to a New House', 'desc': 'A story about moving.', 'pages': [
+                {'img': '', 'text': 'Pack your toys.'},
+                {'img': '', 'text': 'Say goodbye to your old house.'},
+                {'img': '', 'text': 'Drive to your new house.'},
+                {'img': '', 'text': 'Unpack your things.'},
+                {'img': '', 'text': 'Meet your new neighbors.'}
+            ] },
+            { 'id': 'firstday', 'name': 'First Day of School', 'desc': 'A story for starting school.', 'pages': [
+                {'img': '', 'text': 'Wake up early.'},
+                {'img': '', 'text': 'Put on your new backpack.'},
+                {'img': '', 'text': 'Meet your teacher.'},
+                {'img': '', 'text': 'Make new friends.'},
+                {'img': '', 'text': 'Tell your family about your day.'}
+            ] },
+            { 'id': 'baking', 'name': 'Baking Cookies', 'desc': 'A story about baking.', 'pages': [
+                {'img': '', 'text': 'Wash your hands.'},
+                {'img': '', 'text': 'Mix the ingredients.'},
+                {'img': '', 'text': 'Shape the cookies.'},
+                {'img': '', 'text': 'Bake in the oven.'},
+                {'img': '', 'text': 'Eat the cookies with family.'}
+            ] },
+            { 'id': 'haircut', 'name': 'Getting a Haircut', 'desc': 'A story about going to the hairdresser.', 'pages': [
+                {'img': '', 'text': 'Arrive at the salon.'},
+                {'img': '', 'text': 'Sit in the big chair.'},
+                {'img': '', 'text': 'Get your hair washed.'},
+                {'img': '', 'text': 'Get your hair cut.'},
+                {'img': '', 'text': 'See your new haircut in the mirror.'}
+            ] },
+            { 'id': 'bus', 'name': 'Riding the Bus', 'desc': 'A story about taking the bus.', 'pages': [
+                {'img': '', 'text': 'Wait at the bus stop.'},
+                {'img': '', 'text': 'Get on the bus.'},
+                {'img': '', 'text': 'Find a seat.'},
+                {'img': '', 'text': 'Look out the window.'},
+                {'img': '', 'text': 'Get off at your stop.'}
+            ] },
+            { 'id': 'snow', 'name': 'Snow Day', 'desc': 'A story for a snowy day.', 'pages': [
+                {'img': '', 'text': 'Put on your winter clothes.'},
+                {'img': '', 'text': 'Build a snowman.'},
+                {'img': '', 'text': 'Have a snowball fight.'},
+                {'img': '', 'text': 'Drink hot soup.'},
+                {'img': '', 'text': 'Warm up by the fire.'}
+            ] },
+            { 'id': 'museum', 'name': 'Museum Visit', 'desc': 'A story about visiting a museum.', 'pages': [
+                {'img': '', 'text': 'Arrive at the museum.'},
+                {'img': '', 'text': 'See the dinosaur skeleton.'},
+                {'img': '', 'text': 'Look at paintings.'},
+                {'img': '', 'text': 'Try the science exhibit.'},
+                {'img': '', 'text': 'Eat lunch in the museum cafe.'}
+            ] },
+            { 'id': 'farm', 'name': 'Trip to the Farm', 'desc': 'A story about visiting a farm.', 'pages': [
+                {'img': '', 'text': 'See the cows.'},
+                {'img': '', 'text': 'Feed the chickens.'},
+                {'img': '', 'text': 'Ride on a tractor.'},
+                {'img': '', 'text': 'Pick vegetables.'},
+                {'img': '', 'text': 'Say goodbye to the animals.'}
+            ] },
+            { 'id': 'train', 'name': 'Train Ride', 'desc': 'A story about riding a train.', 'pages': [
+                {'img': '', 'text': 'Arrive at the train station.'},
+                {'img': '', 'text': 'Get on the train.'},
+                {'img': '', 'text': 'Find your seat.'},
+                {'img': '', 'text': 'Look out the window.'},
+                {'img': '', 'text': 'Arrive at your destination.'}
+            ] },
+            { 'id': 'picnic', 'name': 'Picnic in the Park', 'desc': 'A story about having a picnic.', 'pages': [
+                {'img': '', 'text': 'Pack a picnic basket.'},
+                {'img': '', 'text': 'Find a spot in the park.'},
+                {'img': '', 'text': 'Eat sandwiches and fruit.'},
+                {'img': '', 'text': 'Play frisbee.'},
+                {'img': '', 'text': 'Lie on the grass and watch the clouds.'}
+            ] },
+            { 'id': 'sports', 'name': 'Playing Sports', 'desc': 'A story about playing a sport.', 'pages': [
+                {'img': '', 'text': 'Put on your sports uniform.'},
+                {'img': '', 'text': 'Warm up with your team.'},
+                {'img': '', 'text': 'Play the game.'},
+                {'img': '', 'text': 'Shake hands with the other team.'},
+                {'img': '', 'text': 'Celebrate with your friends.'}
+            ] },
+            { 'id': 'movie', 'name': 'Movie Night', 'desc': 'A story about watching a movie.', 'pages': [
+                {'img': '', 'text': 'Pick a movie to watch.'},
+                {'img': '', 'text': 'Make popcorn.'},
+                {'img': '', 'text': 'Turn off the lights.'},
+                {'img': '', 'text': 'Watch the movie.'},
+                {'img': '', 'text': 'Talk about your favorite part.'}
+            ] },
+            { 'id': 'garden', 'name': 'Gardening', 'desc': 'A story about planting a garden.', 'pages': [
+                {'img': '', 'text': 'Dig in the dirt.'},
+                {'img': '', 'text': 'Plant seeds.'},
+                {'img': '', 'text': 'Water the plants.'},
+                {'img': '', 'text': 'Watch the plants grow.'},
+                {'img': '', 'text': 'Pick flowers or vegetables.'}
+            ] },
+            { 'id': 'grandparents', 'name': 'Visiting Grandparents', 'desc': 'A story about visiting family.', 'pages': [
+                {'img': '', 'text': 'Drive to grandparents\' house.'},
+                {'img': '', 'text': 'Give a big hug.'},
+                {'img': '', 'text': 'Bake cookies together.'},
+                {'img': '', 'text': 'Play board games.'},
+                {'img': '', 'text': 'Say goodbye and promise to visit again.'}
+            ] },
+            { 'id': 'space', 'name': 'Trip to Space', 'desc': 'A story about an imaginary space adventure.', 'pages': [
+                {'img': '', 'text': 'Put on your space suit.'},
+                {'img': '', 'text': 'Blast off in a rocket.'},
+                {'img': '', 'text': 'Float in zero gravity.'},
+                {'img': '', 'text': 'See the stars and planets.'},
+                {'img': '', 'text': 'Return safely to Earth.'}
+            ] },
+            { 'id': 'superhero', 'name': 'Superhero Day', 'desc': 'A story about being a superhero.', 'pages': [
+                {'img': '', 'text': 'Put on your superhero cape.'},
+                {'img': '', 'text': 'Help someone in need.'},
+                {'img': '', 'text': 'Save the day.'},
+                {'img': '', 'text': 'Take a superhero nap.'},
+                {'img': '', 'text': 'Dream of new adventures.'}
+            ] },
+            { 'id': 'music', 'name': 'Music Class', 'desc': 'A story about learning music.', 'pages': [
+                {'img': '', 'text': 'Pick an instrument.'},
+                {'img': '', 'text': 'Learn a new song.'},
+                {'img': '', 'text': 'Play with your friends.'},
+                {'img': '', 'text': 'Perform for your family.'},
+                {'img': '', 'text': 'Take a bow.'}
+            ] },
+            { 'id': 'lost', 'name': 'Getting Lost and Found', 'desc': 'A story about getting lost and being found.', 'pages': [
+                {'img': '', 'text': 'Realize you are lost.'},
+                {'img': '', 'text': 'Look for a safe adult.'},
+                {'img': '', 'text': 'Ask for help.'},
+                {'img': '', 'text': 'Wait in a safe place.'},
+                {'img': '', 'text': 'Be reunited with your family.'}
+            ] },
+            { 'id': 'fire', 'name': 'Fire Drill', 'desc': 'A story about fire safety.', 'pages': [
+                {'img': '', 'text': 'Hear the fire alarm.'},
+                {'img': '', 'text': 'Line up with your class.'},
+                {'img': '', 'text': 'Walk outside safely.'},
+                {'img': '', 'text': 'Wait for the all clear.'},
+                {'img': '', 'text': 'Return to class.'}
+            ] },
+            { 'id': 'birthday2', 'name': 'Surprise Birthday', 'desc': 'A story about a surprise party.', 'pages': [
+                {'img': '', 'text': 'Plan a surprise.'},
+                {'img': '', 'text': 'Hide and wait.'},
+                {'img': '', 'text': 'Shout "Surprise!"'},
+                {'img': '', 'text': 'Eat cake.'},
+                {'img': '', 'text': 'Open presents.'}
+            ] },
+            { 'id': 'sports2', 'name': 'Soccer Game', 'desc': 'A story about playing soccer.', 'pages': [
+                {'img': '', 'text': 'Put on your soccer uniform.'},
+                {'img': '', 'text': 'Warm up with your team.'},
+                {'img': '', 'text': 'Play the game.'},
+                {'img': '', 'text': 'Score a goal.'},
+                {'img': '', 'text': 'Celebrate with your team.'}
+            ] },
+            { 'id': 'bike', 'name': 'Learning to Ride a Bike', 'desc': 'A story about learning to ride.', 'pages': [
+                {'img': '', 'text': 'Put on your helmet.'},
+                {'img': '', 'text': 'Get on your bike.'},
+                {'img': '', 'text': 'Practice pedaling.'},
+                {'img': '', 'text': 'Try without training wheels.'},
+                {'img': '', 'text': 'Ride all by yourself!'}
+            ] },
+            { 'id': 'pet2', 'name': 'Taking Care of a Pet', 'desc': 'A story about pet care.', 'pages': [
+                {'img': '', 'text': 'Feed your pet.'},
+                {'img': '', 'text': 'Give your pet water.'},
+                {'img': '', 'text': 'Brush your pet.'},
+                {'img': '', 'text': 'Play with your pet.'},
+                {'img': '', 'text': 'Take your pet to the vet.'}
+            ] },
+            { 'id': 'siblings', 'name': 'Being a Good Sibling', 'desc': 'A story about siblings.', 'pages': [
+                {'img': '', 'text': 'Play with your sibling.'},
+                {'img': '', 'text': 'Share your toys.'},
+                {'img': '', 'text': 'Help your sibling.'},
+                {'img': '', 'text': 'Say sorry if you argue.'},
+                {'img': '', 'text': 'Give your sibling a hug.'}
+            ] },
+            { 'id': 'holiday', 'name': 'Holiday Celebration', 'desc': 'A story about a special holiday.', 'pages': [
+                {'img': '', 'text': 'Decorate the house.'},
+                {'img': '', 'text': 'Make a holiday card.'},
+                {'img': '', 'text': 'Eat a special meal.'},
+                {'img': '', 'text': 'Give a gift.'},
+                {'img': '', 'text': 'Say thank you.'}
+            ] },
+            { 'id': 'hospital', 'name': 'Hospital Visit', 'desc': 'A story about visiting someone in the hospital.', 'pages': [
+                {'img': '', 'text': 'Wash your hands.'},
+                {'img': '', 'text': 'Bring a card or gift.'},
+                {'img': '', 'text': 'Say hello.'},
+                {'img': '', 'text': 'Talk quietly.'},
+                {'img': '', 'text': 'Say goodbye and wish them well.'}
+            ] },
+            { 'id': 'science', 'name': 'Science Experiment', 'desc': 'A story about doing science.', 'pages': [
+                {'img': '', 'text': 'Put on your safety goggles.'},
+                {'img': '', 'text': 'Mix the ingredients.'},
+                {'img': '', 'text': 'Watch what happens.'},
+                {'img': '', 'text': 'Write down your results.'},
+                {'img': '', 'text': 'Clean up your workspace.'}
+            ] },
+            { 'id': 'art', 'name': 'Art Class', 'desc': 'A story about making art.', 'pages': [
+                {'img': '', 'text': 'Pick your art supplies.'},
+                {'img': '', 'text': 'Draw or paint a picture.'},
+                {'img': '', 'text': 'Show your art to the class.'},
+                {'img': '', 'text': 'Hang your art on the wall.'},
+                {'img': '', 'text': 'Take your art home.'}
+            ] },
+            { 'id': 'cleaning', 'name': 'Cleaning Up', 'desc': 'A story about cleaning.', 'pages': [
+                {'img': '', 'text': 'Pick up your toys.'},
+                {'img': '', 'text': 'Put away your books.'},
+                {'img': '', 'text': 'Sweep the floor.'},
+                {'img': '', 'text': 'Wipe the table.'},
+                {'img': '', 'text': 'Wash your hands.'}
+            ] },
+            { 'id': 'bedtime', 'name': 'Bedtime Routine', 'desc': 'A story about getting ready for bed.', 'pages': [
+                {'img': '', 'text': 'Put on pajamas.'},
+                {'img': '', 'text': 'Brush your teeth.'},
+                {'img': '', 'text': 'Read a bedtime story.'},
+                {'img': '', 'text': 'Say goodnight.'},
+                {'img': '', 'text': 'Go to sleep.'}
+            ] },
+            { 'id': 'travel', 'name': 'Traveling', 'desc': 'A story about going on a trip.', 'pages': [
+                {'img': '', 'text': 'Pack your suitcase.'},
+                {'img': '', 'text': 'Go to the airport.'},
+                {'img': '', 'text': 'Fly on a plane.'},
+                {'img': '', 'text': 'Arrive at your destination.'},
+                {'img': '', 'text': 'Explore a new place.'}
+            ] },
+            { 'id': 'birthday3', 'name': 'Birthday at School', 'desc': 'A story about celebrating at school.', 'pages': [
+                {'img': '', 'text': 'Tell your teacher it\'s your birthday.'},
+                {'img': '', 'text': 'Wear a birthday crown.'},
+                {'img': '', 'text': 'Share treats with your class.'},
+                {'img': '', 'text': 'Get a birthday card.'},
+                {'img': '', 'text': 'Take a class photo.'}
+            ] },
+            { 'id': 'showandtell', 'name': 'Show and Tell', 'desc': 'A story about sharing at school.', 'pages': [
+                {'img': '', 'text': 'Pick something special to bring.'},
+                {'img': '', 'text': 'Show it to your class.'},
+                {'img': '', 'text': 'Tell a story about it.'},
+                {'img': '', 'text': 'Answer questions.'},
+                {'img': '', 'text': 'Put it back in your bag.'}
+            ] },
+            { 'id': 'fieldtrip', 'name': 'Field Trip', 'desc': 'A story about going on a field trip.', 'pages': [
+                {'img': '', 'text': 'Get on the bus.'},
+                {'img': '', 'text': 'Arrive at the destination.'},
+                {'img': '', 'text': 'Learn something new.'},
+                {'img': '', 'text': 'Eat lunch with friends.'},
+                {'img': '', 'text': 'Return to school.'}
+            ] },
+            { 'id': 'birthday4', 'name': 'Birthday with Family', 'desc': 'A story about a family birthday.', 'pages': [
+                {'img': '', 'text': 'Wake up to birthday balloons.'},
+                {'img': '', 'text': 'Eat a special breakfast.'},
+                {'img': '', 'text': 'Open presents.'},
+                {'img': '', 'text': 'Have a birthday dinner.'},
+                {'img': '', 'text': 'Blow out the candles.'}
+            ] }
+        ] %}
+        {% for template in premade_templates %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm" style="background:#fff;border:2px solid #1976d2;">
+                <div class="card-body">
+                    <h5 class="card-title" style="color:#1976d2;">{{ template.name }}</h5>
+                    <p class="card-text" style="color:#333;">{{ template.desc }}</p>
+                    <div class="mb-2">
+                        <div class="d-flex flex-wrap gap-2 template-card-pages" data-template-id="{{ template.id }}">
+                            {% for page in template.pages %}
+                            <div class="template-card-page" style="width:120px;min-height:160px;background:#e3f2fd;border-radius:8px;box-shadow:0 2px 8px rgba(25,118,210,0.08);padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                                <div class="template-card-img" data-img-text="{{ page.text }}" style="width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:8px;margin-bottom:8px;">
+                                    <div class="spinner-border text-primary" role="status" style="width:32px;height:32px;"></div>
+                                </div>
+                                <div style="color:#1976d2;font-size:0.95em;text-align:center;">{{ page.text }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <button class="btn btn-secondary me-2" onclick="showTemplatePreview('{{ template.id }}')">Preview</button>
+                        <button class="btn btn-warning me-2" onclick="editTemplate('{{ template.id }}')">Edit</button>
+                        <button class="btn btn-primary" onclick="useTemplate('{{ template.id }}')">Use Template</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <p class="mt-4 text-muted">To use a template, click "Use Template". You can customize the story after loading it.</p>
+</div>
+
+<!-- Template Preview Modal -->
+<div class="modal fade" id="templatePreviewModal" tabindex="-1" aria-labelledby="templatePreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="templatePreviewModalLabel">Template Preview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="templatePreviewBody" style="background:#e3f2fd;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/image_search.js') }}"></script>
+<script>
+const premadeTemplates = {
+    'morning': [
+        {text: 'Wake up and smile!'},
+        {text: 'Brush your teeth.'},
+        {text: 'Get dressed for the day.'},
+        {text: 'Eat a healthy breakfast.'},
+        {text: 'Go to school and learn.'}
+    ],
+    'friends': [
+        {text: 'Say hello to someone new.'},
+        {text: 'Share your toys.'},
+        {text: 'Listen to your friends.'},
+        {text: 'Be kind and helpful.'}
+    ],
+    'doctor': [
+        {text: 'Arrive at the clinic.'},
+        {text: 'Wait your turn patiently.'},
+        {text: 'Talk to the doctor.'},
+        {text: 'Get a sticker for being brave!'}
+    ],
+    'school': [
+        {text: 'Go to class.'},
+        {text: 'Listen to the teacher.'},
+        {text: 'Play at recess.'},
+        {text: 'Eat lunch with friends.'},
+        {text: 'Go home and rest.'}
+    ],
+    'emotions': [
+        {text: 'Sometimes I feel happy.'},
+        {text: 'Sometimes I feel sad.'},
+        {text: "It's okay to talk about feelings."}
+    ]
+};
+
+// Load SerpApi images for card previews
+
+// --- Keyword mapping from image_search.js ---
+const serpImageMap = {
+    'Wake up and smile!': { keywords: ['child waking up', 'morning routine child'] },
+    'Brush your teeth.': { keywords: ['child brushing teeth', 'dental hygiene child'] },
+    'Get dressed for the day.': { keywords: ['child getting dressed', 'morning routine child'] },
+    'Eat a healthy breakfast.': { keywords: ['child eating breakfast', 'healthy breakfast child'] },
+    'Go to school and learn.': { keywords: ['child going to school', 'school day child'] },
+    'Say hello to someone new.': { keywords: ['child saying hello', 'making friends child'] },
+    'Share your toys.': { keywords: ['child sharing toys', 'playtime child'] },
+    'Listen to your friends.': { keywords: ['child listening to friends', 'friendship child'] },
+    'Be kind and helpful.': { keywords: ['child being kind', 'helping others child'] },
+    'Arrive at the clinic.': { keywords: ['child arriving at clinic', 'doctor visit child'] },
+    'Wait your turn patiently.': { keywords: ['child waiting patiently', 'doctor visit child'] },
+    'Talk to the doctor.': { keywords: ['child talking to doctor', 'doctor visit child'] },
+    'Get a sticker for being brave!': { keywords: ['child getting sticker', 'bravery child'] },
+    'Go to class.': { keywords: ['child going to class', 'school day child'] },
+    'Listen to the teacher.': { keywords: ['child listening to teacher', 'classroom child'] },
+    'Play at recess.': { keywords: ['child playing at recess', 'recess child'] },
+    'Eat lunch with friends.': { keywords: ['child eating lunch', 'lunch time child'] },
+    'Go home and rest.': { keywords: ['child going home', 'rest time child'] },
+    'Sometimes I feel happy.': { keywords: ['child feeling happy', 'emotions child'] },
+    'Sometimes I feel sad.': { keywords: ['child feeling sad', 'emotions child'] },
+    "It's okay to talk about feelings.": { keywords: ['child talking about feelings', 'emotions child'] }
+};
+
+function getBestSerpKeyword(text) {
+    const entry = serpImageMap[text];
+    if (entry && entry.keywords && entry.keywords.length > 0) {
+        return entry.keywords[0];
+    }
+    return text;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.template-card-pages').forEach(function(cardPages) {
+        const templateId = cardPages.getAttribute('data-template-id');
+        const pages = premadeTemplates[templateId] || [];
+        const pageDivs = cardPages.querySelectorAll('.template-card-page');
+        for (let i = 0; i < pages.length; i++) {
+            const page = pages[i];
+            const imgDiv = pageDivs[i].querySelector('.template-card-img');
+            imgDiv.innerHTML = '<div class="spinner-border text-primary" role="status" style="width:32px;height:32px;"></div>';
+            const keyword = getBestSerpKeyword(page.text);
+            fetch(`/api/serpapi_image_search?query=${encodeURIComponent(keyword)}`)
+                .then(res => res.json())
+                .then(data => {
+                    let imgUrl = (data.images && data.images.length > 0) ? data.images[0] : '/static/img/profile_1.png';
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    img.alt = 'Page image';
+                    img.style.width = '64px';
+                    img.style.height = '64px';
+                    img.style.objectFit = 'cover';
+                    img.onload = () => { imgDiv.innerHTML = ''; imgDiv.appendChild(img); };
+                    img.onerror = () => {
+                        imgDiv.innerHTML = '<img src="/static/img/profile_1.png" alt="Page image" style="width:64px;height:64px;object-fit:cover;">';
+                    };
+                    imgDiv.innerHTML = '';
+                    imgDiv.appendChild(img);
+                })
+                .catch(() => {
+                    imgDiv.innerHTML = '<img src="/static/img/profile_1.png" alt="Page image" style="width:64px;height:64px;object-fit:cover;">';
+                });
+        }
+    });
+});
+
+async function showTemplatePreview(id) {
+    const pages = premadeTemplates[id] || [];
+    const body = document.getElementById('templatePreviewBody');
+    body.innerHTML = '';
+    for (const page of pages) {
+        const pageDiv = document.createElement('div');
+        pageDiv.style.width = '220px';
+        pageDiv.style.minHeight = '260px';
+        pageDiv.style.background = '#fff';
+        pageDiv.style.borderRadius = '12px';
+        pageDiv.style.boxShadow = '0 2px 8px rgba(25,118,210,0.12)';
+        pageDiv.style.padding = '16px';
+        pageDiv.style.display = 'flex';
+        pageDiv.style.flexDirection = 'column';
+        pageDiv.style.alignItems = 'center';
+        pageDiv.style.justifyContent = 'center';
+        pageDiv.style.marginBottom = '8px';
+        // Show spinner while loading
+        const spinner = document.createElement('div');
+        spinner.className = 'spinner-border text-primary';
+        spinner.style.width = '48px';
+        spinner.style.height = '48px';
+        spinner.style.marginBottom = '12px';
+        pageDiv.appendChild(spinner);
+        // Get best keyword for SerpAPI
+        const keyword = getBestSerpKeyword(page.text);
+        let imgUrl = '/static/img/profile_1.png';
+        let errorOccurred = false;
+        try {
+            const res = await fetch(`/api/serpapi_image_search?query=${encodeURIComponent(keyword)}`);
+            if (!res.ok) {
+                errorOccurred = true;
+                console.error('SerpAPI fetch failed:', res.status, res.statusText);
+            } else {
+                const data = await res.json();
+                if (data && data.images && Array.isArray(data.images) && data.images.length > 0) {
+                    imgUrl = data.images[0];
+                } else {
+                    errorOccurred = true;
+                    console.error('SerpAPI returned no images or malformed response:', data);
+                }
+            }
+        } catch (err) {
+            errorOccurred = true;
+            console.error('SerpAPI fetch error:', err);
+        }
+        // Always remove spinner and show image
+        if (pageDiv.contains(spinner)) {
+            pageDiv.removeChild(spinner);
+        }
+        const img = document.createElement('img');
+        img.src = imgUrl;
+        img.alt = 'Page image';
+        img.style.width = '96px';
+        img.style.height = '96px';
+        img.style.objectFit = 'cover';
+        img.style.marginBottom = '12px';
+        img.onerror = () => {
+            img.src = '/static/img/profile_1.png';
+        };
+        pageDiv.appendChild(img);
+        const textDiv = document.createElement('div');
+        textDiv.style.color = '#1976d2';
+        textDiv.style.fontSize = '1.1em';
+        textDiv.style.textAlign = 'center';
+        textDiv.textContent = page.text;
+        pageDiv.appendChild(textDiv);
+        body.appendChild(pageDiv);
+    }
+    var modal = new bootstrap.Modal(document.getElementById('templatePreviewModal'));
+    modal.show();
+}
+function editTemplate(id) {
+// Helper for modal preview (for future use if needed)
+async function fetchSerpApiImage(text) {
+    const keyword = getBestSerpKeyword(text);
+    try {
+        const res = await fetch(`/api/serpapi_image_search?query=${encodeURIComponent(keyword)}`);
+        const data = await res.json();
+        return (data.images && data.images.length > 0) ? data.images[0] : '/static/img/profile_1.png';
+    } catch {
+        return '/static/img/profile_1.png';
+    }
+}
+    window.location.href = '/stories/templates/edit/' + id;
+}
+function useTemplate(id) {
+    window.location.href = '/stories/use_template/' + id;
+}
+</script>
+{% endblock %}

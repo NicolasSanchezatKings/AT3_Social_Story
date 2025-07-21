@@ -16,10 +16,10 @@ SQLAlchemy==2.0.23
 python-dotenv==1.0.0
 
 # Optional: Email support (uncomment if needed)
-# Flask-Mail==0.9.1
+Flask-Mail==0.9.1
 
 # Optional: Database migrations (uncomment if needed)
-# Flask-Migrate==4.0.5
+Flask-Migrate==4.0.5
 
 # Optional: API support (uncomment if needed)
 # Flask-RESTful==0.3.10

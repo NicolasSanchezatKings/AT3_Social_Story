@@ -37,6 +37,9 @@ def create_app(config_name=None):
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+    from app.extensions import migrate, mail
+    migrate.init_app(app, db)
+    mail.init_app(app)
     
     # Configure login manager
     login_manager.login_view = 'auth.login'
@@ -90,4 +93,4 @@ def register_blueprints(app):
     
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(stories_bp, url_prefix='/stories')
+    app.register_blueprint(stories_bp)  # Register at root for /api/* endpoints

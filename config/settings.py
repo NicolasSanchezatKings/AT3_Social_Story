@@ -32,6 +32,7 @@ class Config:
     
     # Admin
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
+    SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', 'support@socialstories.com')
     
     @staticmethod
     def init_app(app):
