@@ -1133,74 +1133,87 @@ label[for="globalImageInput"]::after {
         geminiSendBtn.disabled = isLoading;
         geminiInput.disabled = isLoading;
     }
-    // Ensure Gemini send button and input trigger sendGeminiMessage
-    if (geminiSendBtn && !geminiSendBtn._listenerAdded) {
-        geminiSendBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            sendGeminiMessage();
-        });
-        geminiSendBtn._listenerAdded = true;
-    }
-    if (geminiInput && !geminiInput._listenerAdded) {
-        geminiInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendGeminiMessage();
-            }
-        });
-        geminiInput._listenerAdded = true;
-    }
 
     // Intercept Gemini send button
     async function sendGeminiMessage() {
         const prompt = geminiInput.value.trim();
         if (!prompt) return;
-        setGeminiLoading(true);
-        // Fetch Gemini API key from backend
-        let apiKey = null;
-        try {
-            const keyResp = await fetch('/api/gemini_api_key');
-            const keyData = await keyResp.json();
-            if (keyResp.ok && keyData.api_key) {
-                apiKey = keyData.api_key;
-            } else {
-                setGeminiLoading(false);
-                geminiWindow.innerHTML += `<div class='mb-2 text-danger'>Error: No Gemini API key found in your profile.</div>`;
-                return;
+        // TODO: Implement Gemini API call here
+        // The code block below appears to be misplaced and should be removed or replaced with actual Gemini API logic.
+        // Remove the following block to fix the syntax error:
+        /*
+        (function() {
+            function getQueryParam(name) {
+                const url = new URL(window.location.href);
+                return url.searchParams.get(name);
             }
-        } catch (err) {
-            setGeminiLoading(false);
-            geminiWindow.innerHTML += `<div class='mb-2 text-danger'>Error: Could not fetch Gemini API key.</div>`;
-            return;
-        }
-        // Now call Gemini API with user's key
-        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
+            const templateId = getQueryParam('template_id');
+            const templateName = getQueryParam('template_name');
+            const templateDesc = getQueryParam('template_desc');
+            const templatePages = getQueryParam('template_pages');
+            const templateImgs = getQueryParam('template_imgs');
+            if (window.storyContent) {
+                // Wait for DOM and editor JS to be ready
+                function tryLoadStory(retries) {
+                    if (typeof window.deserializeBook !== 'function' || typeof window.createPage !== 'function') {
+                        if (retries > 0) return setTimeout(() => tryLoadStory(retries - 1), 100);
+                        return;
+                    }
+                    window.deserializeBook(JSON.stringify(window.storyContent));
+                }
+                window.addEventListener('DOMContentLoaded', function() {
+                    tryLoadStory(20);
+                });
+            } else if (templateId && templatePages) {
+                // Set title if empty
+                const titleInput = document.getElementById('title');
+                if (titleInput && (!titleInput.value || titleInput.value.trim() === '')) {
+                    titleInput.value = templateName || '';
+                }
+                // Wait for DOM and editor JS to be ready
+                function tryLoadTemplate(retries) {
+                    if (typeof window.pages === 'undefined' || typeof window.createPage !== 'function' || typeof window.addImageToPage !== 'function') {
+                        if (retries > 0) return setTimeout(() => tryLoadTemplate(retries - 1), 100);
+                        return;
+                    }
+                    // Clear existing pages
+                    while (window.pages.length > 0) {
+                        const p = window.pages.pop();
+                        if (p.parentNode) p.parentNode.removeChild(p);
+                    }
+                    // Add template pages with images
+                    const pageTexts = templatePages.split('|~|');
+                    const pageImgs = templateImgs ? templateImgs.split('|~|') : [];
+                    pageTexts.forEach((txt, idx) => {
+                        const page = window.createPage();
+                        const pageBody = page.querySelector('.page-body');
+                        if (pageBody) pageBody.innerText = txt;
+                        window.pages.push(page);
+                        window.bookContainer.appendChild(page);
+                    });
+                    // Now add images to correct pages
+                    pageImgs.forEach((imgUrl, idx) => {
+                        if (imgUrl && imgUrl.trim() !== '' && window.pages[idx]) {
+                            window.currentPageIndex = idx;
+                            window.addImageToPage(imgUrl);
+                        }
+                    });
+                    // Show first page
+                    if (window.pages.length > 0) {
+                        window.pages.forEach(p => p.classList.remove('active'));
+                        window.pages[0].classList.add('active');
+                        window.currentPageIndex = 0;
+                    }
+                    if (typeof window.updatePageControls === 'function') window.updatePageControls();
+                    if (typeof window.saveState === 'function') window.saveState();
+                }
+                window.addEventListener('DOMContentLoaded', function() {
+                    tryLoadTemplate(20); // Try for up to 2 seconds
+                });
             }
-        )
-        .then(response => response.json())
-        .then(data => {
-            setGeminiLoading(false);
-            let reply = '';
-            if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
-                reply = data.candidates[0].content.parts[0].text;
-            } else {
-                reply = 'No response from Gemini.';
-            }
-            geminiWindow.innerHTML += `<div class='mb-2'><strong>You:</strong> ${prompt}</div><div class='mb-2'><strong>Gemini:</strong> ${reply}</div>`;
-            geminiInput.value = '';
-        })
-        .catch(err => {
-            setGeminiLoading(false);
-            geminiWindow.innerHTML += `<div class='mb-2 text-danger'>Error: Could not reach Gemini API.</div>`;
-        });
+        })();
+        */
+        // You can implement your Gemini API call here and handle the response.
     }
     // Gemini Chat Bubble Logic
     const geminiBubble = document.getElementById('gemini-chat-bubble');
@@ -1292,7 +1305,7 @@ label[for="globalImageInput"]::after {
                         style: imgContainer.getAttribute('style'),
                         zIndex: imgContainer.style.zIndex || '20',
                         dataX: imgContainer.getAttribute('data-x') || '0',
-                        dataY: imgContainer.getAttribute('data-y') || '0'
+                        dataY: imgContainer.getAttribute('data-y') || '0',
                     };
                 }),
                 bgColor: p.style.backgroundColor || '#fff',
@@ -1301,9 +1314,9 @@ label[for="globalImageInput"]::after {
                 orientation: p.getAttribute('data-orientation') || 'portrait'
             };
         });
-        undoStack.push(currentState);
-        const nextState = redoStack.pop();
-        restoreState(nextState);
+        redoStack.push(currentState);
+        const lastState = undoStack.pop();
+        restoreState(lastState);
         updateUndoRedoButtons();
     }
     function redo() {
@@ -1313,12 +1326,12 @@ label[for="globalImageInput"]::after {
                 html: p.querySelector('.page-body').innerHTML,
                 images: Array.from(p.querySelectorAll('.resizable')).map(imgContainer => {
                     return {
-        src: imgContainer.querySelector('img').src,
-        style: imgContainer.getAttribute('style'),
-        zIndex: imgContainer.style.zIndex || '20',
-        dataX: imgContainer.getAttribute('data-x') || '0',
-        dataY: imgContainer.getAttribute('data-y') || '0',
-    };
+                        src: imgContainer.querySelector('img').src,
+                        style: imgContainer.getAttribute('style'),
+                        zIndex: imgContainer.style.zIndex || '20',
+                        dataX: imgContainer.getAttribute('data-x') || '0',
+                        dataY: imgContainer.getAttribute('data-y') || '0',
+                    };
                 }),
                 bgColor: p.style.backgroundColor || '#fff',
                 bgImage: p.style.backgroundImage || '',

@@ -123,6 +123,9 @@ AT3_Social_Story_Nick_S/
 - Python 3.8 or higher
 - pip (Python package installer)
 - Virtual environment (recommended)
+- SerpAPI Key - Input your own API key into the Accounts Page when logged in
+- Google Maps API Key - Input your own API key into the Accounts Page when logged in
+- Google Gemini AI API Key - Input your own API key into the Accounts Page when logged in
 
 ### Step-by-Step Installation
 

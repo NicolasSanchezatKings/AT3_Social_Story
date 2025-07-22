@@ -43,6 +43,17 @@ def serpapi_image_search():
         return jsonify({'error': f'SerpAPI error: {str(e)}', 'images': []}), 500
 
 
+# Gemini API Key endpoint for frontend
+@stories.route('/api/gemini_api_key')
+@login_required
+def gemini_api_key():
+    api_key = getattr(current_user, 'gemini_api_key', None)
+    if not api_key:
+        return jsonify({'error': 'No Gemini API key found'}), 404
+
+    return jsonify({'api_key': api_key})
+
+
 
 # SerpAPI Google Image Search for template thumbnails
 @stories.route('/api/template_image')
